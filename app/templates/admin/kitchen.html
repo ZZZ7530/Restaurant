@@ -1,0 +1,121 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}出餐管理{% endblock %}
+{% block page_heading %}出餐管理{% endblock %}
+
+{% block content %}
+{% set order_type_labels = {
+    "takeout": "外帶",
+    "dine_in": "內用",
+    "qrcode": "QRCode 點餐",
+    "manual": "現場點餐"
+} %}
+{% set status_labels = {
+    "pending": "製作中",
+    "accepted": "已接單",
+    "preparing": "製作中",
+    "ready": "待取餐",
+    "completed": "已完成",
+    "cancelled": "已取消"
+} %}
+
+{% if error %}
+<div class="alert alert-danger">{{ error }}</div>
+{% endif %}
+
+<section class="kitchen-toolbar">
+    <div>
+        <p class="admin-kicker">Kitchen Board</p>
+        <h2>即時出餐看板</h2>
+    </div>
+    <a class="btn btn-outline-secondary" href="{{ url_for('admin.kitchen') }}">重新整理</a>
+</section>
+
+<section class="kitchen-board">
+    {% for order in orders %}
+    <article class="kitchen-order-card {% if order.all_items_completed %}is-complete{% endif %}">
+        <header class="kitchen-order-card__header">
+            <div>
+                <span class="kitchen-order-card__type">{{ order_type_labels.get(order.order_type, order.order_type or "外帶") }}</span>
+                <h3>{{ order.order_no }}</h3>
+            </div>
+            <span class="kitchen-status kitchen-status--{{ order.status }}">
+                {{ "全部餐點已完成" if order.all_items_completed else status_labels.get(order.status, order.status) }}
+            </span>
+        </header>
+
+        <dl class="kitchen-meta">
+            {% if order.order_type == "dine_in" %}
+            <div>
+                <dt>桌號</dt>
+                <dd>{{ order.table_display_name or order.table_number or "-" }}</dd>
+            </div>
+            <div>
+                <dt>下單時間</dt>
+                <dd>{{ order.created_at }}</dd>
+            </div>
+            {% else %}
+            <div>
+                <dt>顧客姓名</dt>
+                <dd>{{ order.customer_name or "-" }}</dd>
+            </div>
+            <div>
+                <dt>電話</dt>
+                <dd>{{ order.customer_phone or "-" }}</dd>
+            </div>
+            <div>
+                <dt>取餐時間</dt>
+                <dd>{{ order.pickup_date }} {{ order.pickup_time }}</dd>
+            </div>
+            {% endif %}
+            <div>
+                <dt>總金額</dt>
+                <dd>NT$ {{ "%.0f"|format(order.total_amount) }}</dd>
+            </div>
+            <div>
+                <dt>備註</dt>
+                <dd>{{ order.note or "-" }}</dd>
+            </div>
+        </dl>
+
+        <div class="kitchen-items">
+            {% for item in order["items"] %}
+            <div class="kitchen-item {% if item.item_status == 'completed' %}is-complete{% endif %}">
+                <div class="kitchen-item__main">
+                    <strong>
+                        {% if item.item_status == 'completed' %}<span aria-hidden="true">✓</span>{% endif %}
+                        {{ item.item_name }}{% if item.specification %}（{{ item.specification }}）{% endif %}
+                    </strong>
+                    <p>
+                        數量 x{{ item.quantity }}
+                        {% if item.note %}｜備註：{{ item.note }}{% endif %}
+                    </p>
+                    <small>{{ "已完成" if item.item_status == "completed" else "未完成" }}</small>
+                </div>
+
+                {% if item.item_status == "completed" %}
+                <form method="post" action="{{ url_for('admin.order_item_undo_complete', item_id=item.id) }}">
+                    <button class="btn btn-outline-secondary btn-lg" type="submit">取消完成</button>
+                </form>
+                {% else %}
+                <form method="post" action="{{ url_for('admin.order_item_complete', item_id=item.id) }}">
+                    <button class="btn btn-primary btn-lg" type="submit">標記完成</button>
+                </form>
+                {% endif %}
+            </div>
+            {% else %}
+            <p class="text-muted mb-0">這筆訂單沒有餐點明細。</p>
+            {% endfor %}
+        </div>
+
+        <form class="kitchen-order-complete-form" method="post" action="{{ url_for('admin.order_complete', order_id=order.id) }}" onsubmit="return confirm('確認此訂單已全部完成並從出餐看板收起嗎？');">
+            <button class="btn btn-success btn-lg w-100" type="submit">訂單已完成</button>
+        </form>
+    </article>
+    {% else %}
+    <div class="admin-panel">
+        <p class="mb-0">目前沒有等待出餐的訂單。</p>
+    </div>
+    {% endfor %}
+</section>
+{% endblock %}

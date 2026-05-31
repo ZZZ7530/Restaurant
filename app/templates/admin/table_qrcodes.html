@@ -1,0 +1,67 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}桌號 QR Code{% endblock %}
+{% block page_heading %}桌號 QR Code{% endblock %}
+
+{% block content %}
+<section class="admin-panel">
+    <div class="admin-panel-header">
+        <div>
+            <h2>桌號 QR Code 管理</h2>
+            <p class="admin-muted mb-0">依樓層產生每桌 QR Code，列印後可直接放在桌上。</p>
+        </div>
+    </div>
+
+    {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+
+    {% for group in table_groups %}
+    <section class="table-qrcode-floor">
+        <h3>{{ group.floor }}</h3>
+        <div class="table-qrcode-grid">
+            {% for table in group.tables %}
+            <article class="table-qrcode-card" data-qrcode-card>
+                <div class="table-qrcode-card__header">
+                    <div>
+                        <p class="admin-kicker mb-1">Table {{ table.table_number }}</p>
+                        <h4>{{ table.display_name or table.table_number ~ " 桌" }}</h4>
+                    </div>
+                </div>
+
+                <div
+                    class="table-qrcode-card__code"
+                    data-qrcode-target
+                    data-url="{{ table.order_url }}"
+                    aria-label="{{ table.display_name or table.table_number ~ ' 桌' }}點餐 QR Code"
+                ></div>
+
+                <label class="form-label" for="table-url-{{ table.id }}">點餐網址</label>
+                <input
+                    id="table-url-{{ table.id }}"
+                    class="form-control table-qrcode-card__url"
+                    type="text"
+                    value="{{ table.order_url }}"
+                    readonly
+                >
+
+                <a
+                    class="btn btn-primary w-100 mt-3"
+                    href="#"
+                    data-qrcode-download
+                    data-filename="table-{{ table.table_number }}-qrcode.png"
+                >下載 QR Code</a>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+    {% else %}
+    <div class="admin-empty-state">
+        目前沒有啟用中的桌號，請先確認 restaurant_tables 是否已有資料。
+    </div>
+    {% endfor %}
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="{{ url_for('static', filename='js/admin_table_qrcodes.js') }}"></script>
+{% endblock %}

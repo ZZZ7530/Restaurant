@@ -1,0 +1,56 @@
+{% extends "admin/base_admin.html" %}
+
+{% set is_edit = reservation and reservation.get("id") %}
+{% block title %}{{ "編輯訂位" if is_edit else "新增訂位" }}{% endblock %}
+{% block page_heading %}{{ "編輯訂位" if is_edit else "新增訂位" }}{% endblock %}
+
+{% block content %}
+<section class="admin-panel admin-form-panel">
+    {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+
+    <form method="post" action="{{ url_for('admin.reservation_update', reservation_id=reservation.get('id')) if is_edit else url_for('admin.reservation_create') }}">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label" for="customer_name">姓名</label>
+                <input id="customer_name" name="customer_name" class="form-control" value="{{ reservation.get('customer_name', '') if reservation else '' }}" required>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="customer_phone">電話</label>
+                <input id="customer_phone" name="customer_phone" class="form-control" value="{{ reservation.get('customer_phone', '') if reservation else '' }}" required>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label" for="reservation_date">日期</label>
+                <input id="reservation_date" name="reservation_date" type="date" class="form-control" value="{{ reservation.get('reservation_date', '') if reservation else '' }}" required>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label" for="reservation_time">時間</label>
+                <input id="reservation_time" name="reservation_time" type="time" class="form-control" value="{{ reservation.get('reservation_time', '') if reservation else '' }}" required>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label" for="party_size">人數</label>
+                <input id="party_size" name="party_size" type="number" min="1" class="form-control" value="{{ reservation.get('party_size', '') if reservation else '' }}" required>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="status">狀態</label>
+                {% set current_status = reservation.get('status', 'pending') if reservation else 'pending' %}
+                <select id="status" name="status" class="form-select">
+                    {% for status in statuses %}
+                    <option value="{{ status }}" {% if current_status == status %}selected{% endif %}>{{ status }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12">
+                <label class="form-label" for="note">備註</label>
+                <textarea id="note" name="note" class="form-control" rows="4">{{ reservation.get('note', '') if reservation else '' }}</textarea>
+            </div>
+        </div>
+
+        <div class="admin-form-actions">
+            <button class="btn btn-primary" type="submit">儲存</button>
+            <a class="btn btn-outline-secondary" href="{{ url_for('admin.reservations') }}">返回列表</a>
+        </div>
+    </form>
+</section>
+{% endblock %}

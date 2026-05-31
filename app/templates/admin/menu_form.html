@@ -1,0 +1,59 @@
+{% extends "admin/base_admin.html" %}
+
+{% set is_edit = item and item.get("id") %}
+{% block title %}{{ "編輯菜色" if is_edit else "新增菜色" }}{% endblock %}
+{% block page_heading %}{{ "編輯菜色" if is_edit else "新增菜色" }}{% endblock %}
+
+{% block content %}
+<section class="admin-panel admin-form-panel">
+    {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+
+    <form method="post" action="{{ url_for('admin.menu_update', item_id=item.get('id')) if is_edit else url_for('admin.menu_create') }}">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label" for="name">菜名</label>
+                <input id="name" name="name" class="form-control" value="{{ item.get('name', '') if item else '' }}" required>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="price">價格</label>
+                <input id="price" name="price" type="number" min="0" step="1" class="form-control" value="{{ item.get('price', '') if item else '' }}" required>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="sort_order">排序</label>
+                <input id="sort_order" name="sort_order" type="number" class="form-control" value="{{ item.get('sort_order', 0) if item else 0 }}">
+            </div>
+            <div class="col-12">
+                <label class="form-label" for="description">描述</label>
+                <textarea id="description" name="description" class="form-control" rows="4">{{ item.get('description', '') if item else '' }}</textarea>
+            </div>
+            <div class="col-12">
+                <label class="form-label" for="image_url">圖片路徑</label>
+                <input id="image_url" name="image_url" class="form-control" value="{{ item.get('image_url', '') if item else '' }}" placeholder="例如：images/background/菜單-蒜蓉龍蝦.jpg">
+            </div>
+            <div class="col-md-6">
+                {% set is_available = item.get('is_available', 1) if item else 1 %}
+                <label class="form-label" for="is_available">是否上架</label>
+                <select id="is_available" name="is_available" class="form-select">
+                    <option value="1" {% if is_available|string == "1" %}selected{% endif %}>上架</option>
+                    <option value="0" {% if is_available|string == "0" %}selected{% endif %}>下架</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                {% set is_featured = item.get('is_featured', 0) if item else 0 %}
+                <label class="form-label" for="is_featured">首頁精選</label>
+                <select id="is_featured" name="is_featured" class="form-select">
+                    <option value="0" {% if is_featured|string == "0" %}selected{% endif %}>否</option>
+                    <option value="1" {% if is_featured|string == "1" %}selected{% endif %}>是</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="admin-form-actions">
+            <button class="btn btn-primary" type="submit">儲存</button>
+            <a class="btn btn-outline-secondary" href="{{ url_for('admin.menu_items') }}">返回列表</a>
+        </div>
+    </form>
+</section>
+{% endblock %}

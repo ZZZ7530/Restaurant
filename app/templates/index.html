@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+{% block title %}首頁 | {{ restaurant_name }}{% endblock %}
+
+{% block content %}
+<section class="home-hero" aria-label="餐廳主視覺">
+    <div class="home-hero__slides" data-hero-carousel>
+        <img class="home-hero__image is-active" src="{{ url_for('static', filename='images/background/首頁大圖5.jpg') }}"
+            alt="上漁港活海產首頁大圖 1">
+        <img class="home-hero__image" src="{{ url_for('static', filename='images/background/首頁大圖1.png') }}"
+            alt="上漁港活海產首頁大圖 2">
+        <img class="home-hero__image" src="{{ url_for('static', filename='images/background/首頁大圖2.jpg') }}"
+            alt="上漁港活海產首頁大圖 3">
+        <img class="home-hero__image" src="{{ url_for('static', filename='images/background/首頁大圖3.jpg') }}"
+            alt="上漁港活海產首頁大圖 4">
+        <img class="home-hero__image" src="{{ url_for('static', filename='images/background/首頁大圖4.jpg') }}"
+            alt="上漁港活海產首頁大圖 5">
+    </div>
+    <div class="home-hero__overlay"></div>
+    <div class="home-hero__content">
+        <p class="section-kicker">Live Seafood Restaurant</p>
+        <h1>今天想吃新鮮海味嗎？</h1>
+        <p>新鮮海產、熱炒鍋氣與家人朋友的聚餐時光，都在上漁港活海產。</p>
+        <div class="home-hero__actions">
+            <a class="home-button home-button--primary" href="{{ url_for('reservation.reservation_form') }}">立即線上訂位</a>
+            <a class="home-button home-button--light" href="{{ url_for('orders.takeout_form') }}">外帶訂餐</a>
+        </div>
+    </div>
+    <div class="home-hero__controls" aria-label="首頁大圖輪播控制">
+        <button class="home-hero__control" type="button" data-hero-prev aria-label="上一張">‹</button>
+        <button class="home-hero__control" type="button" data-hero-next aria-label="下一張">›</button>
+    </div>
+    <div class="home-hero__dots" aria-label="首頁大圖目前位置">
+        <button class="is-active" type="button" data-hero-dot="0" aria-label="切換到第 1 張" aria-current="true"></button>
+        <button type="button" data-hero-dot="1" aria-label="切換到第 2 張"></button>
+        <button type="button" data-hero-dot="2" aria-label="切換到第 3 張"></button>
+        <button type="button" data-hero-dot="3" aria-label="切換到第 4 張"></button>
+        <button type="button" data-hero-dot="4" aria-label="切換到第 5 張"></button>
+    </div>
+</section>
+
+<section id="about" class="home-section home-about">
+    <div class="home-container home-about__grid">
+        <div class="home-section__copy">
+            <p class="section-kicker">About</p>
+            <h2>靠近漁港的新鮮海味，也能有俐落舒服的用餐節奏。</h2>
+            <p>上漁港活海產以每日新鮮海產與現點現做料理為特色，結合熱炒與合菜文化，打造適合家庭聚餐與朋友相聚的用餐空間。希望每位客人都能在輕鬆舒服的氛圍裡，品嚐最真實的海味。</p>
+        </div>
+        <div class="home-about__cards" aria-label="網站服務重點">
+            <article>
+                <span>01</span>
+                <h3>每日新鮮漁獲</h3>
+                <p>每天挑選當季海產，保留最自然鮮甜的海味。</p>
+            </article>
+            <article>
+                <span>02</span>
+                <h3>現點現做料理</h3>
+                <p>從熱炒到海鮮料理，堅持現點現煮，吃得到新鮮與溫度。</p>
+            </article>
+            <article>
+                <span>03</span>
+                <h3>舒適用餐空間</h3>
+                <p>適合家庭聚餐、朋友聚會與節日慶祝，享受放鬆的用餐時光。</p>
+            </article>
+        </div>
+    </div>
+</section>
+
+<section id="news" class="home-section home-news seafood-orange-band">
+    <img class="news-seafood-photo news-seafood-photo--left"
+        src="{{ url_for('static', filename='images/background/海鮮背景4.jpg') }}" alt="" aria-hidden="true">
+    <img class="news-seafood-photo news-seafood-photo--right"
+        src="{{ url_for('static', filename='images/background/海鮮背景3.jpg') }}" alt="" aria-hidden="true">
+    <div class="home-container">
+        <div class="home-section__heading">
+            <div>
+                <p class="section-kicker">News</p>
+                <h2>最新消息</h2>
+            </div>
+            <a class="home-text-link" href="{{ url_for('public.contact') }}">聯絡店家</a>
+        </div>
+        <div class="home-news__grid">
+            <article class="news-card news-card--featured">
+                <span>店內公告</span>
+                <h3>節慶桌菜與包廂訂位開放預約</h3>
+                <p>家庭聚餐、朋友聚會與公司小型餐敘皆可提前來電或線上預約。若有長輩、小孩或特殊座位需求，請在備註中告訴我們。</p>
+                <a href="{{ url_for('reservation.reservation_form') }}">立即訂位</a>
+            </article>
+            <a class="news-card news-card--link" href="{{ url_for('public.newyear_menu') }}">
+                <span>年菜專區</span>
+                <h3>2026 蛇年年菜菜單</h3>
+                <p>提供富貴團圓桌菜與多人合菜組合，適合家庭圍爐與春節聚餐，歡迎提前預訂。</p>
+                <strong class="news-card__link-label">查看完整菜單</strong>
+            </a>
+            <article class="news-card">
+                <span>營業資訊</span>
+                <h3>週二公休，其餘時段正常營業</h3>
+                <p>週一、三至六 10:00-21:00；週日 09:30-21:00。臨時店休會於此區更新。</p>
+            </article>
+        </div>
+    </div>
+</section>
+
+<section id="menu-preview" class="home-section home-menu seafood-stage">
+    <div class="home-container">
+        <div class="home-section__heading">
+            <div>
+                <p class="section-kicker">Menu</p>
+                <h2>招牌菜單</h2>
+            </div>
+            <a class="home-text-link" href="{{ url_for('public.menu') }}">看完整菜單</a>
+        </div>
+
+        <div class="home-menu__grid">
+            <article class="dish-card">
+                <img src="{{ url_for('static', filename='images/background/紅燒魚.jpeg') }}" alt="紅燒魚">
+                <div class="dish-card__body">
+                    <h3>紅燒魚</h3>
+                    <p>魚肉鮮嫩入味，搭配鹹香醬汁與蔥花，是聚餐桌上經典又下飯的海鮮料理。</p>
+                    <strong>NT$ 700</strong>
+                </div>
+            </article>
+            <article class="dish-card">
+                <img src="{{ url_for('static', filename='images/background/魚翅羹.jpg') }}" alt="魚翅羹">
+                <div class="dish-card__body">
+                    <h3>魚翅羹</h3>
+                    <p>濃郁羹湯口感滑順，融合海鮮鮮味與豐富配料，適合多人共享。</p>
+                    <strong>NT$ 900</strong>
+                </div>
+            </article>
+            <article class="dish-card">
+                <img src="{{ url_for('static', filename='images/background/蒜蓉龍蝦.jpg') }}" alt="蒜蓉龍蝦">
+                <div class="dish-card__body">
+                    <h3>蒜蓉龍蝦</h3>
+                    <p>龍蝦肉質鮮甜彈牙，搭配蒜蓉香氣，呈現豪華又有層次的海味。</p>
+                    <strong>時價</strong>
+                </div>
+            </article>
+        </div>
+    </div>
+</section>
+
+<section class="home-section home-flow seafood-orange-band">
+    <img class="flow-seafood-photo flow-seafood-photo--left"
+        src="{{ url_for('static', filename='images/background/海鮮背景6.jpg') }}" alt="" aria-hidden="true">
+    <img class="flow-seafood-photo flow-seafood-photo--right"
+        src="{{ url_for('static', filename='images/background/海鮮背景7.jpg') }}" alt="" aria-hidden="true">
+    <div class="home-container">
+        <div class="home-section__heading home-section__heading--center">
+            <p class="section-kicker">Reservation & Takeout</p>
+            <h2>三步驟完成訂位與外帶</h2>
+        </div>
+        <div class="home-flow__grid">
+            <article>
+                <span>Step 1</span>
+                <h3>選擇服務</h3>
+                <p>從首頁進入線上訂位、外帶訂餐或完整菜單。</p>
+            </article>
+            <article>
+                <span>Step 2</span>
+                <h3>填寫資料</h3>
+                <p>留下姓名、電話、日期、時間與備註需求。</p>
+            </article>
+            <article>
+                <span>Step 3</span>
+                <h3>店家確認</h3>
+                <p>後台查看紀錄並更新處理狀態，流程清楚不混亂。</p>
+            </article>
+        </div>
+    </div>
+</section>
+
+<section class="home-section home-info seafood-stage">
+    <div class="home-container home-info__grid">
+        <div class="home-info__copy">
+            <p class="section-kicker">Hours & Contact</p>
+            <h2>營業資訊與交通聯絡</h2>
+            <p>營業時間：週二休；週一、三至六 10:00-21:00；週日 09:30-21:00。餐廳位於高雄市茄萣區崎漏里大發路 99 號，歡迎提前訂位或預訂外帶餐點。</p>
+            <div class="home-info__actions">
+                <a class="home-button home-button--primary"
+                    href="{{ url_for('reservation.reservation_form') }}">預約內用</a>
+                <a class="home-text-link" href="{{ url_for('public.contact') }}">查看交通資訊</a>
+            </div>
+        </div>
+        <div class="home-info__media">
+            <img class="home-info__image home-info__image--large"
+                src="{{ url_for('static', filename='images/background/店面招牌.png') }}" alt="上漁港活海產店面招牌">
+            <img class="home-info__image home-info__image--small"
+                src="{{ url_for('static', filename='images/background/店內環境.png') }}" alt="上漁港活海產店內環境">
+        </div>
+    </div>
+</section>
+
+<section class="home-cta">
+    <div class="home-container home-cta__inner">
+        <div>
+            <p class="section-kicker">Ready</p>
+            <h2>今晚，就留一桌新鮮海味的位置。</h2>
+        </div>
+        <div class="home-cta__actions">
+            <a class="home-button home-button--light" href="{{ url_for('reservation.reservation_form') }}">線上訂位</a>
+            <a class="home-button home-button--outline-light" href="{{ url_for('orders.takeout_form') }}">外帶訂餐</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

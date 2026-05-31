@@ -1,0 +1,56 @@
+{% extends "admin/base_admin.html" %}
+
+{% set is_edit = order and order.get("id") %}
+{% block title %}{{ "編輯訂單" if is_edit else "新增訂單" }}{% endblock %}
+{% block page_heading %}{{ "編輯訂單" if is_edit else "新增訂單" }}{% endblock %}
+
+{% block content %}
+<section class="admin-panel admin-form-panel">
+    {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+
+    <form method="post" action="{{ url_for('admin.order_update', order_id=order.get('id')) if is_edit else url_for('admin.order_create') }}">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label" for="customer_name">顧客姓名</label>
+                <input id="customer_name" name="customer_name" class="form-control" value="{{ order.get('customer_name', '') if order else '' }}" required>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="customer_phone">電話</label>
+                <input id="customer_phone" name="customer_phone" class="form-control" value="{{ order.get('customer_phone', '') if order else '' }}" required>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="pickup_date">取餐日期</label>
+                <input id="pickup_date" name="pickup_date" type="date" class="form-control" value="{{ order.get('pickup_date', '') if order else '' }}" required>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="pickup_time">取餐時間</label>
+                <input id="pickup_time" name="pickup_time" type="time" class="form-control" value="{{ order.get('pickup_time', '') if order else '' }}" required>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="total_amount">總金額</label>
+                <input id="total_amount" name="total_amount" type="number" min="0" step="1" class="form-control" value="{{ order.get('total_amount', '') if order else '' }}" required>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="status">狀態</label>
+                {% set current_status = order.get('status', 'pending') if order else 'pending' %}
+                <select id="status" name="status" class="form-select">
+                    {% for status in statuses %}
+                    <option value="{{ status }}" {% if current_status == status %}selected{% endif %}>{{ status }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12">
+                <label class="form-label" for="note">備註</label>
+                <textarea id="note" name="note" class="form-control" rows="4">{{ order.get('note', '') if order else '' }}</textarea>
+            </div>
+        </div>
+
+        <div class="admin-form-actions">
+            <button class="btn btn-primary" type="submit">儲存</button>
+            <a class="btn btn-outline-secondary" href="{{ url_for('admin.orders') }}">返回列表</a>
+        </div>
+    </form>
+</section>
+{% endblock %}

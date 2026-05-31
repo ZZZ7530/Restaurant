@@ -1,0 +1,53 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}菜單管理{% endblock %}
+{% block page_heading %}菜單管理{% endblock %}
+
+{% block content %}
+<section class="admin-panel">
+    <div class="admin-panel-header">
+        <h2>菜色列表</h2>
+        <a class="btn btn-primary" href="{{ url_for('admin.menu_form') }}">新增菜色</a>
+    </div>
+
+    {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+
+    <div class="table-responsive">
+        <table class="table admin-table align-middle">
+            <thead>
+                <tr>
+                    <th>菜名</th>
+                    <th>價格</th>
+                    <th>上架</th>
+                    <th>圖片路徑</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.name }}</td>
+                    <td>NT$ {{ "%.0f"|format(item.price) }}</td>
+                    <td>{{ "是" if item.is_available else "否" }}</td>
+                    <td>{{ item.image_url or "-" }}</td>
+                    <td>
+                        <div class="admin-row-actions">
+                            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('admin.menu_form', item_id=item.id) }}">編輯</a>
+                            <form method="post" action="{{ url_for('admin.menu_delete', item_id=item.id) }}" onsubmit="return confirm('確定要刪除此菜色嗎？若此菜色已有訂單明細，可能無法刪除。');">
+                                <button class="btn btn-sm btn-outline-danger" type="submit">刪除</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5">目前沒有菜色資料。</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

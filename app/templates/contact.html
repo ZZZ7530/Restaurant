@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}交通資訊 | {{ restaurant_name }}{% endblock %}
+
+{% block content %}
+<section class="page-title">
+    <div class="container">
+        <p class="section-kicker">Contact</p>
+        <h1>交通資訊</h1>
+    </div>
+</section>
+
+<section class="section contact-section">
+    <div class="container contact-grid">
+        <article class="contact-card">
+            <p class="section-kicker">Restaurant Info</p>
+            <h2>餐廳資訊</h2>
+            <p>歡迎來到 {{ restaurant_name }}。我們提供新鮮海產、熱炒料理、線上訂位與外帶預訂服務，適合家庭聚餐、朋友聚會與日常用餐。</p>
+            <dl class="contact-list">
+                <div>
+                    <dt>地址</dt>
+                    <dd>852 高雄市茄萣區崎漏里大發路 99 號</dd>
+                </div>
+                <div>
+                    <dt>營業時間</dt>
+                    <dd>週二休；週一、三至六 10:00-21:00；週日 09:30-21:00</dd>
+                </div>
+                <div>
+                    <dt>服務項目</dt>
+                    <dd>內用、線上訂位、外帶預訂、到店付款</dd>
+                </div>
+            </dl>
+        </article>
+
+        <div class="map-card">
+            <iframe
+                class="map-frame"
+                title="{{ restaurant_name }} Google Map"
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+                src="https://www.google.com/maps?q=852%E9%AB%98%E9%9B%84%E5%B8%82%E8%8C%84%E8%90%A3%E5%8D%80%E5%B4%8E%E6%BC%8F%E9%87%8C%E5%A4%A7%E7%99%BC%E8%B7%AF99%E8%99%9F&output=embed">
+            </iframe>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,1378 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600&family=Noto+Serif+TC:wght@500;600&display=swap");
+
+$ink: #2b2420;
+$muted: #6a5b53;
+$soy: #c8322b;
+$soy-light: #f05f3b;
+$terracotta: #f47a32;
+$sesame: #ffb84d;
+$cream: #fff8f4;
+$linen: #ffe8dd;
+$paper: #ffffff;
+$sage: #2f8f7b;
+$line: rgba($ink, 0.1);
+$shadow-soft: 0 18px 46px rgba(196, 59, 38, 0.08);
+$shadow-lift: 0 24px 60px rgba(196, 59, 38, 0.14);
+$radius-md: 18px;
+$radius-lg: 28px;
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: $cream;
+  background-image:
+    radial-gradient(circle at 12% 8%, rgba($sesame, 0.18), transparent 24%),
+    radial-gradient(circle at 88% 18%, rgba($terracotta, 0.12), transparent 28%);
+  color: $ink;
+  font-family: "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 1.8;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  display: block;
+  height: auto;
+  object-fit: cover;
+  width: 100%;
+}
+
+h1,
+h2,
+h3 {
+  font-family: "Noto Serif TC", serif;
+  letter-spacing: 0.04em;
+}
+
+p {
+  color: $muted;
+  font-weight: 400;
+}
+
+.top-strip {
+  background: rgba($paper, 0.9);
+  border-bottom: 1px solid $line;
+  color: $muted;
+  font-size: 0.9rem;
+  padding: 8px 0;
+}
+
+.top-strip-inner {
+  display: flex;
+  gap: 24px;
+  justify-content: space-between;
+}
+
+.site-nav {
+  background: rgba($cream, 0.94);
+  border-bottom: 1px solid $line;
+  backdrop-filter: blur(14px);
+  min-height: 88px;
+}
+
+.brand-lockup {
+  align-items: center;
+  display: flex;
+  gap: 16px;
+  min-width: 0;
+}
+
+.brand-logo {
+  flex: 0 0 auto;
+  height: 70px;
+  object-fit: contain;
+  width: auto;
+}
+
+.brand-copy {
+  display: block;
+  min-width: 0;
+}
+
+.brand-lockup strong,
+.brand-lockup small {
+  display: block;
+  line-height: 1.15;
+}
+
+.brand-lockup small {
+  color: $muted;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+}
+
+.navbar-nav .nav-link {
+  color: $ink;
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.nav-cta {
+  background: $soy;
+  border-radius: 999px;
+  color: $paper !important;
+  margin-left: 8px;
+  padding-left: 18px !important;
+  padding-right: 18px !important;
+}
+
+.home-container {
+  margin: 0 auto;
+  max-width: 1180px;
+  padding: 0 24px;
+  width: 100%;
+}
+
+#about,
+#news,
+#menu-preview {
+  scroll-margin-top: 112px;
+}
+
+.section-kicker {
+  color: $terracotta;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+
+.home-hero {
+  min-height: 80vh;
+  overflow: hidden;
+  position: relative;
+
+  &__slides {
+    inset: 0;
+    position: absolute;
+  }
+
+  &__image {
+    height: 100%;
+    inset: 0;
+    min-height: 680px;
+    opacity: 0;
+    position: absolute;
+    transition: opacity 700ms ease;
+    z-index: 0;
+
+    &.is-active {
+      opacity: 1;
+    }
+  }
+
+  &__overlay {
+    background: linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0.46),
+      rgba(0, 0, 0, 0.34)
+    );
+    inset: 0;
+    position: absolute;
+  }
+
+  &__content {
+    align-items: center;
+    color: $paper;
+    display: flex;
+    flex-direction: column;
+    inset: 0;
+    justify-content: center;
+    margin: 0 auto;
+    max-width: 1080px;
+    padding: 80px 24px;
+    position: absolute;
+    text-align: center;
+    z-index: 1;
+
+    .section-kicker,
+    p,
+    h1 {
+      color: $paper;
+    }
+
+    h1 {
+      font-size: clamp(2.7rem, 5vw, 4.9rem);
+      font-weight: 700;
+      line-height: 1.16;
+      margin: 0 0 20px;
+      text-shadow: 0 12px 34px rgba(0, 0, 0, 0.32);
+    }
+
+    p:not(.section-kicker) {
+      font-size: clamp(1rem, 2vw, 1.28rem);
+      font-weight: 300;
+      line-height: 2;
+      max-width: 680px;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    justify-content: center;
+    margin-top: 30px;
+  }
+
+  &__controls {
+    align-items: center;
+    display: flex;
+    inset: 50% 0 auto;
+    justify-content: space-between;
+    padding: 0 clamp(16px, 4vw, 56px);
+    pointer-events: none;
+    position: absolute;
+    transform: translateY(-50%);
+    z-index: 2;
+  }
+
+  &__control {
+    align-items: center;
+    background: rgba($paper, 0.82);
+    border: 0;
+    border-radius: 50%;
+    box-shadow: 0 14px 30px rgba(43, 36, 32, 0.18);
+    color: $red;
+    cursor: pointer;
+    display: inline-flex;
+    font-size: 2rem;
+    font-weight: 300;
+    height: 50px;
+    justify-content: center;
+    line-height: 1;
+    pointer-events: auto;
+    transition: background-color 180ms ease, color 180ms ease, transform 180ms ease;
+    width: 50px;
+
+    &:hover {
+      background: $paper;
+      color: $orange;
+      transform: translateY(-2px);
+    }
+  }
+
+  &__dots {
+    bottom: 26px;
+    display: flex;
+    gap: 10px;
+    left: 50%;
+    position: absolute;
+    transform: translateX(-50%);
+    z-index: 2;
+
+    button {
+      background: rgba($paper, 0.58);
+      border: 0;
+      border-radius: 999px;
+      cursor: pointer;
+      height: 9px;
+      padding: 0;
+      transition: background-color 180ms ease, width 180ms ease;
+      width: 9px;
+
+      &.is-active {
+        background: $paper;
+        width: 34px;
+      }
+    }
+  }
+}
+
+.home-button {
+  align-items: center;
+  border-radius: 999px;
+  display: inline-flex;
+  font-weight: 500;
+  justify-content: center;
+  letter-spacing: 0.06em;
+  min-height: 48px;
+  padding: 12px 24px;
+  transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+
+  &--primary {
+    background: $soy;
+    color: $paper;
+
+    &:hover {
+      background: $soy-light;
+      box-shadow: 0 14px 30px rgba($soy, 0.2);
+      color: $paper;
+    }
+  }
+
+  &--light {
+    background: rgba($paper, 0.95);
+    color: $soy;
+
+    &:hover {
+      background: $paper;
+      color: $soy-light;
+    }
+  }
+
+  &--outline-light {
+    border: 1px solid rgba($paper, 0.76);
+    color: $paper;
+
+    &:hover {
+      background: rgba($paper, 0.14);
+      color: $paper;
+    }
+  }
+}
+
+.home-section {
+  overflow: hidden;
+  padding: 96px 0;
+  position: relative;
+
+  > .home-container {
+    position: relative;
+    z-index: 2;
+  }
+
+  &__copy {
+    max-width: 650px;
+
+    h2 {
+      font-size: clamp(2rem, 4vw, 3.25rem);
+      font-weight: 600;
+      line-height: 1.35;
+      margin-bottom: 22px;
+    }
+
+    p {
+      font-size: 1.04rem;
+      line-height: 2;
+    }
+  }
+
+  &__heading {
+    align-items: end;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 38px;
+
+    h2 {
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 600;
+      margin: 0;
+    }
+
+    &--center {
+      align-items: center;
+      flex-direction: column;
+      margin-left: auto;
+      margin-right: auto;
+      max-width: 720px;
+      text-align: center;
+    }
+  }
+}
+
+.seafood-stage {
+  background:
+    linear-gradient(135deg, rgba($paper, 0.96), rgba($cream, 0.9)),
+    $paper;
+
+  &::before {
+    border: 1px solid rgba($terracotta, 0.14);
+    content: "";
+    inset: 36px;
+    pointer-events: none;
+    position: absolute;
+    transform: skewX(-8deg);
+    z-index: 0;
+  }
+}
+
+.seafood-orange-band {
+  background:
+    radial-gradient(circle at 8% 20%, rgba($paper, 0.22), transparent 28%),
+    linear-gradient(135deg, #ff9f2f, #f47a32 48%, #ef4e2d);
+}
+
+.seafood-decor {
+  filter: drop-shadow(0 20px 35px rgba($ink, 0.22));
+  height: auto;
+  object-fit: cover;
+  opacity: 0.96;
+  pointer-events: none;
+  position: absolute;
+  z-index: 1;
+
+  &--left {
+    left: -110px;
+  }
+
+  &--right {
+    right: -110px;
+  }
+
+  &--large {
+    top: 34px;
+    width: clamp(220px, 21vw, 390px);
+  }
+
+  &--medium {
+    bottom: 40px;
+    width: clamp(180px, 17vw, 320px);
+  }
+
+  &--small {
+    bottom: 18px;
+    width: clamp(150px, 14vw, 260px);
+  }
+}
+
+.section {
+  padding: 88px 0;
+}
+
+.home-text-link {
+  color: $soy;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  position: relative;
+
+  &::after {
+    background: currentColor;
+    bottom: -4px;
+    content: "";
+    height: 1px;
+    left: 0;
+    position: absolute;
+    transition: width 180ms ease;
+    width: 100%;
+  }
+
+  &:hover::after {
+    width: 64%;
+  }
+}
+
+.home-about {
+  background:
+    linear-gradient(90deg, rgba($paper, 0.86), rgba($paper, 0.58)),
+    url("../images/background/海鮮背景1.jpg") center / cover no-repeat;
+  background-repeat: no-repeat, no-repeat;
+  min-height: 620px;
+
+  &__grid {
+    align-items: center;
+    display: grid;
+    gap: 56px;
+    grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+  }
+
+  &__cards {
+    display: grid;
+    gap: 18px;
+
+    article {
+      background: rgba($paper, 0.9);
+      backdrop-filter: blur(8px);
+      border-radius: $radius-md;
+      box-shadow: $shadow-soft;
+      padding: 28px;
+
+      span {
+        color: $terracotta;
+        display: block;
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        margin-bottom: 12px;
+      }
+
+      h3 {
+        font-size: 1.32rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+
+      p {
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
+.home-news {
+  overflow: hidden;
+
+  &__grid {
+    display: grid;
+    gap: 24px;
+    grid-template-columns: 1.25fr 0.9fr 0.9fr;
+  }
+}
+
+.news-card {
+  background: rgba($paper, 0.92);
+  border-radius: $radius-lg;
+  box-shadow: $shadow-soft;
+  min-height: 260px;
+  padding: 34px;
+
+  span {
+    color: $soy;
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    font-size: 1.55rem;
+    font-weight: 600;
+    line-height: 1.45;
+    margin-bottom: 14px;
+  }
+
+  p {
+    line-height: 1.95;
+    margin-bottom: 0;
+  }
+
+  a {
+    color: $soy;
+    display: inline-flex;
+    font-weight: 700;
+    margin-top: 22px;
+  }
+
+  &--link {
+    color: $ink;
+    display: block;
+    text-decoration: none;
+    transition: box-shadow 180ms ease, transform 180ms ease;
+
+    &:hover {
+      box-shadow: $shadow-lift;
+      color: $ink;
+      transform: translateY(-4px);
+    }
+  }
+
+  &__link-label {
+    color: $soy;
+    display: inline-flex;
+    font-size: 0.98rem;
+    font-weight: 700;
+    margin-top: 22px;
+  }
+
+  &--featured {
+    min-height: 340px;
+    padding: 42px;
+
+    h3 {
+      font-size: clamp(1.8rem, 3vw, 2.5rem);
+    }
+  }
+}
+
+.page-hero {
+  background:
+    linear-gradient(135deg, rgba($paper, 0.94), rgba($cream, 0.86)),
+    radial-gradient(circle at 86% 20%, rgba($sesame, 0.22), transparent 26%);
+  padding: 92px 0 72px;
+  text-align: center;
+
+  h1 {
+    color: $soy;
+    font-size: clamp(2.2rem, 5vw, 4rem);
+    font-weight: 700;
+    margin: 0 0 18px;
+  }
+
+  p:not(.section-kicker) {
+    color: $muted;
+    margin: 0 auto;
+    max-width: 720px;
+  }
+}
+
+.newyear-menu-page {
+  background:
+    linear-gradient(180deg, rgba($cream, 0.94), rgba($linen, 0.46)),
+    $cream;
+}
+
+.newyear-menu-card {
+  background: rgba($paper, 0.96);
+  border-radius: $radius-lg;
+  box-shadow: $shadow-soft;
+  margin: 0 auto;
+  max-width: 980px;
+  padding: clamp(14px, 3vw, 28px);
+
+  img {
+    border-radius: $radius-md;
+    height: auto;
+    object-fit: contain;
+  }
+}
+
+.newyear-menu-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 34px;
+}
+
+.news-seafood-photo {
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  filter: drop-shadow(0 18px 32px rgba($ink, 0.2));
+  object-fit: cover;
+  pointer-events: none;
+  position: absolute;
+  width: clamp(180px, 18vw, 340px);
+  z-index: 1;
+
+  &--left {
+    left: -74px;
+    top: -86px;
+  }
+
+  &--right {
+    bottom: -92px;
+    right: -72px;
+  }
+}
+
+.home-menu {
+  background:
+    linear-gradient(90deg, rgba($paper, 0.88), rgba($paper, 0.66)),
+    url("../images/background/海鮮背景5.jpg") center / cover no-repeat;
+  background-repeat: no-repeat, no-repeat;
+
+  &__grid {
+    display: grid;
+    gap: 26px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.dish-card {
+  background: $paper;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-soft;
+  overflow: hidden;
+  transition: box-shadow 180ms ease, transform 180ms ease;
+
+  &:hover {
+    box-shadow: $shadow-lift;
+    transform: translateY(-4px);
+  }
+
+  img {
+    aspect-ratio: 4 / 3;
+  }
+
+  &__body {
+    padding: 26px;
+
+    h3 {
+      font-size: 1.38rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    p {
+      line-height: 1.85;
+      margin-bottom: 18px;
+    }
+
+    strong {
+      color: $soy;
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+  }
+}
+
+.home-flow {
+  overflow: hidden;
+
+  &__grid {
+    display: grid;
+    gap: 22px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+
+    article {
+      background: rgba($paper, 0.86);
+      border-radius: $radius-md;
+      box-shadow: $shadow-soft;
+      padding: 32px;
+
+      span {
+        color: $terracotta;
+        display: block;
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        margin-bottom: 20px;
+        text-transform: uppercase;
+      }
+
+      h3 {
+        font-size: 1.35rem;
+        font-weight: 600;
+        margin-bottom: 12px;
+      }
+
+      p {
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
+.flow-seafood-photo {
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  filter: drop-shadow(0 18px 32px rgba($ink, 0.2));
+  object-fit: cover;
+  pointer-events: none;
+  position: absolute;
+  width: clamp(180px, 18vw, 340px);
+  z-index: 1;
+
+  &--left {
+    left: -72px;
+    top: -88px;
+  }
+
+  &--right {
+    bottom: -96px;
+    right: -74px;
+  }
+}
+
+.home-info {
+  &__grid {
+    align-items: center;
+    display: grid;
+    gap: 64px;
+    grid-template-columns: minmax(0, 0.9fr) minmax(360px, 1.1fr);
+  }
+
+  &__copy {
+    h2 {
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 600;
+      line-height: 1.35;
+      margin-bottom: 22px;
+    }
+
+    p {
+      font-size: 1.04rem;
+      line-height: 2;
+    }
+  }
+
+  &__actions {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 22px;
+    margin-top: 28px;
+  }
+
+  &__media {
+    display: grid;
+    gap: 18px;
+    grid-template-columns: 1fr 0.72fr;
+  }
+
+  &__image {
+    border-radius: $radius-lg;
+    box-shadow: $shadow-soft;
+    min-height: 260px;
+
+    &--large {
+      height: 420px;
+    }
+
+    &--small {
+      align-self: end;
+      height: 300px;
+      margin-bottom: 34px;
+    }
+  }
+}
+
+.home-cta {
+  background:
+    linear-gradient(rgba($soy, 0.92), rgba($soy, 0.9)),
+    linear-gradient(135deg, $soy, $terracotta, $soy-light);
+  color: $paper;
+  padding: 76px 0;
+
+  .section-kicker,
+  h2 {
+    color: $paper;
+  }
+
+  h2 {
+    font-size: clamp(2rem, 4vw, 3.25rem);
+    font-weight: 600;
+    margin: 0;
+  }
+
+  &__inner {
+    align-items: center;
+    display: flex;
+    gap: 28px;
+    justify-content: space-between;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+}
+
+.site-footer {
+  background: url("../images/background/尾頁背景2.jpg") center / cover no-repeat;
+  color: $ink;
+  padding: 54px 0;
+  position: relative;
+
+  &::before {
+    background: linear-gradient(
+      90deg,
+      rgba($cream, 0.54),
+      rgba($cream, 0.38)
+    );
+    content: "";
+    inset: 0;
+    pointer-events: none;
+    position: absolute;
+  }
+
+  > .container {
+    position: relative;
+    z-index: 1;
+  }
+
+  h2,
+  h3 {
+    color: $soy;
+    font-weight: 600;
+    text-shadow: 0 1px 10px rgba($paper, 0.42);
+  }
+
+  a,
+  p {
+    color: rgba($ink, 0.9);
+    display: block;
+    text-shadow: 0 1px 8px rgba($paper, 0.38);
+  }
+}
+
+.footer-grid,
+.info-grid,
+.admin-grid {
+  display: grid;
+  gap: 28px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.page-title {
+  background: linear-gradient(180deg, $linen, $cream);
+  border-bottom: 1px solid $line;
+  padding: 72px 0;
+
+  h1 {
+    font-size: clamp(2.5rem, 6vw, 4.6rem);
+    font-weight: 600;
+  }
+}
+
+.menu-category {
+  margin-bottom: 48px;
+
+  &__heading {
+    margin-bottom: 24px;
+
+    h2 {
+      color: $soy;
+      font-size: clamp(1.8rem, 3vw, 2.6rem);
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    p {
+      color: $muted;
+      margin-bottom: 0;
+      max-width: 760px;
+    }
+  }
+}
+
+.menu-row,
+.form-shell,
+.admin-tile,
+.empty-state {
+  background: $paper;
+  border-radius: $radius-md;
+  box-shadow: $shadow-soft;
+  padding: 28px;
+}
+
+.menu-card {
+  background: $paper;
+  border-radius: $radius-md;
+  box-shadow: $shadow-soft;
+  height: 100%;
+  overflow: hidden;
+  transition: box-shadow 180ms ease, transform 180ms ease;
+
+  &:hover {
+    box-shadow: $shadow-lift;
+    transform: translateY(-5px) scale(1.015);
+  }
+
+  &__image {
+    height: 220px;
+    object-fit: cover;
+    width: 100%;
+  }
+
+  &__body {
+    padding: 22px;
+  }
+
+  &__title-row {
+    align-items: flex-start;
+    display: flex;
+    gap: 14px;
+    justify-content: space-between;
+    margin-bottom: 12px;
+
+    h3 {
+      font-size: 1.24rem;
+      font-weight: 600;
+      line-height: 1.45;
+      margin: 0;
+    }
+
+    strong {
+      color: $soy;
+      flex: 0 0 auto;
+      font-size: 1rem;
+      font-weight: 700;
+      line-height: 1.5;
+      white-space: nowrap;
+    }
+  }
+
+  p {
+    color: $muted;
+    font-size: 0.96rem;
+    line-height: 1.8;
+    margin-bottom: 0;
+  }
+}
+
+.menu-row,
+.takeout-item {
+  align-items: center;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+.takeout-item {
+  border-bottom: 1px solid $line;
+  padding: 16px 0;
+}
+
+.takeout-layout {
+  align-items: start;
+  display: grid;
+  gap: 28px;
+  grid-template-columns: minmax(0, 1fr) 420px;
+}
+
+.takeout-category {
+  margin-bottom: 42px;
+}
+
+.takeout-menu-grid {
+  display: grid;
+  gap: 22px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.takeout-card {
+  background: $paper;
+  border-radius: $radius-md;
+  box-shadow: $shadow-soft;
+  overflow: hidden;
+  transition: box-shadow 180ms ease, transform 180ms ease;
+
+  &:hover {
+    box-shadow: $shadow-lift;
+    transform: translateY(-4px);
+  }
+
+  img {
+    height: 190px;
+    object-fit: cover;
+    width: 100%;
+  }
+
+  &__body {
+    display: grid;
+    gap: 16px;
+    padding: 18px;
+
+    h3 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    strong {
+      color: $soy;
+    }
+  }
+
+  &__actions {
+    align-items: end;
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 92px 1fr;
+
+    label {
+      color: $muted;
+      font-size: 0.86rem;
+      margin: 0;
+    }
+  }
+
+  &__spec {
+    color: $muted;
+    font-size: 0.86rem;
+    margin: 0;
+
+    span {
+      display: block;
+      margin-bottom: 4px;
+    }
+  }
+}
+
+.takeout-cart-panel {
+  position: sticky;
+  top: 104px;
+}
+
+.cart-list {
+  display: grid;
+  gap: 12px;
+  margin: 18px 0;
+}
+
+.cart-item {
+  align-items: center;
+  background: $cream;
+  border-radius: $radius-md;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  padding: 14px;
+
+  strong,
+  span,
+  small {
+    display: block;
+  }
+
+  span,
+  small {
+    color: $muted;
+  }
+
+  &__controls {
+    align-items: center;
+    display: flex;
+    gap: 8px;
+
+    input {
+      width: 72px;
+    }
+  }
+}
+
+.cart-total {
+  align-items: center;
+  border-top: 1px solid $line;
+  display: flex;
+  justify-content: space-between;
+  margin: 18px 0 4px;
+  padding-top: 16px;
+
+  strong {
+    color: $soy;
+    font-size: 1.35rem;
+  }
+}
+
+.cart-note {
+  color: $muted;
+  font-size: 0.92rem;
+  margin-bottom: 20px;
+}
+
+.map-placeholder {
+  align-items: center;
+  background: $linen;
+  border-radius: $radius-md;
+  display: flex;
+  min-height: 240px;
+  justify-content: center;
+}
+
+.contact-section {
+  background: $paper;
+}
+
+.contact-grid {
+  align-items: stretch;
+  display: grid;
+  gap: 34px;
+  grid-template-columns: minmax(0, 0.85fr) minmax(420px, 1.15fr);
+}
+
+.contact-card,
+.map-card {
+  background: $cream;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-soft;
+  overflow: hidden;
+}
+
+.contact-card {
+  padding: 38px;
+
+  h2 {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 600;
+    margin-bottom: 18px;
+  }
+}
+
+.contact-list {
+  display: grid;
+  gap: 18px;
+  margin: 28px 0 0;
+
+  div {
+    border-top: 1px solid $line;
+    padding-top: 18px;
+  }
+
+  dt {
+    color: $soy;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  dd {
+    color: $muted;
+    margin: 0;
+  }
+}
+
+.map-frame {
+  border: 0;
+  display: block;
+  height: 100%;
+  min-height: 520px;
+  width: 100%;
+}
+
+.form-message {
+  margin-top: 16px;
+}
+
+@media (max-width: 992px) {
+  .top-strip-inner,
+  .home-section__heading,
+  .home-cta__inner {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .home-about__grid,
+  .home-info__grid,
+  .footer-grid,
+  .info-grid,
+  .admin-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .home-menu__grid,
+  .home-flow__grid,
+  .home-news__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .takeout-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .takeout-menu-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .takeout-cart-panel {
+    position: static;
+  }
+
+  .contact-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .home-info__media {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .seafood-decor {
+    opacity: 0.22;
+    width: 260px;
+  }
+
+  .news-seafood-photo {
+    opacity: 0.42;
+    width: 240px;
+  }
+
+  .flow-seafood-photo {
+    opacity: 0.42;
+    width: 240px;
+  }
+}
+
+@media (max-width: 768px) {
+  .brand-lockup {
+    gap: 16px;
+    max-width: calc(100vw - 90px);
+  }
+
+  .brand-logo {
+    height: 70px;
+  }
+
+  .brand-lockup strong {
+    font-size: 1rem;
+  }
+
+  .brand-lockup small {
+    font-size: 0.66rem;
+    letter-spacing: 0.04em;
+  }
+
+  .top-strip-inner {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .home-hero,
+  .home-hero__image {
+    height: 72vh;
+    min-height: 560px;
+  }
+
+  .home-hero__controls {
+    padding: 0 14px;
+  }
+
+  .home-hero__control {
+    height: 42px;
+    width: 42px;
+  }
+
+  .home-section {
+    padding: 68px 0;
+  }
+
+  .home-info__media {
+    grid-template-columns: 1fr;
+  }
+
+  .takeout-menu-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cart-item {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .news-card,
+  .news-card--featured {
+    min-height: 0;
+    padding: 28px;
+  }
+
+  .map-frame {
+    min-height: 360px;
+  }
+
+  .home-info__image--large,
+  .home-info__image--small {
+    height: 300px;
+    margin-bottom: 0;
+  }
+
+  .home-hero__actions,
+  .home-cta__actions,
+  .home-info__actions {
+    align-items: stretch;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .home-button {
+    width: 100%;
+  }
+
+  .seafood-stage::before {
+    inset: 18px;
+  }
+
+  .seafood-decor {
+    display: none;
+  }
+
+  .news-seafood-photo {
+    display: none;
+  }
+
+  .flow-seafood-photo {
+    display: none;
+  }
+}

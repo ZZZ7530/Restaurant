@@ -1,0 +1,53 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}時價管理{% endblock %}
+{% block page_heading %}時價管理{% endblock %}
+
+{% block content %}
+<section class="admin-panel">
+    <div class="admin-panel-header">
+        <h2>今日時價</h2>
+        <a class="btn btn-primary" href="{{ url_for('admin.daily_price_new') }}">新增時價</a>
+    </div>
+
+    {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+
+    <div class="table-responsive">
+        <table class="table admin-table align-middle">
+            <thead>
+                <tr>
+                    <th>菜名</th>
+                    <th>今日價格</th>
+                    <th>啟用</th>
+                    <th>更新時間</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for price in prices %}
+                <tr>
+                    <td>{{ price.item_name }}</td>
+                    <td>{{ price.price_text }}</td>
+                    <td>{{ "是" if price.is_active else "否" }}</td>
+                    <td>{{ price.updated_at }}</td>
+                    <td>
+                        <div class="admin-row-actions">
+                            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('admin.daily_price_edit', price_id=price.id) }}">編輯</a>
+                            <form method="post" action="{{ url_for('admin.daily_price_delete', price_id=price.id) }}" onsubmit="return confirm('確定要刪除此時價設定嗎？');">
+                                <button class="btn btn-sm btn-outline-danger" type="submit">刪除</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5">目前沒有時價資料。</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

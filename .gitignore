@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+.env
+instance/
+uploads/menu/*
+!uploads/menu/.gitkeep
+app/static/css/*.map
+server.err.log
+server.out.log
+*.log

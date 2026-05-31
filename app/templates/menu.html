@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}菜單展示 | {{ restaurant_name }}{% endblock %}
+
+{% block content %}
+<section class="page-title">
+    <div class="container">
+        <p class="eyebrow">Menu</p>
+        <h1>菜單展示</h1>
+    </div>
+</section>
+
+<section class="section menu-page">
+    <div class="container">
+        {% for category in categories %}
+        <div class="menu-category">
+            <div class="row g-4">
+                {% for item in category["items"] %}
+                {% set image_src = url_for('static', filename='images/background/' ~ item.image_filename) if item.image_filename else (url_for('static', filename=item.image_url) if item.image_url else url_for('static', filename='images/default-menu.jpg')) %}
+                <div class="col-12 col-md-6 col-lg-3">
+                    <article class="menu-card">
+                        <img class="menu-card__image"
+                            src="{{ image_src }}"
+                            alt="{{ item.name }}">
+                        <div class="menu-card__body">
+                            <div class="menu-card__title-row">
+                                <h3>{{ item.name }}</h3>
+                                <strong>
+                                    {% if item.display_price_label %}
+                                    {{ item.display_price_label }}
+                                    {% elif item.price_label %}
+                                    {{ item.price_label }}
+                                    {% elif item.price is number %}
+                                    NT$ {{ "%.0f"|format(item.price) }}
+                                    {% else %}
+                                    {{ item.price }}
+                                    {% endif %}
+                                </strong>
+                            </div>
+                            {% if item.description %}
+                            <p>{{ item.description }}</p>
+                            {% endif %}
+                        </div>
+                    </article>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% else %}
+        <div class="empty-state">目前沒有可顯示的菜單資料。</div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

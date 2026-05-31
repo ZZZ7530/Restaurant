@@ -1,0 +1,92 @@
+.hero-section {
+  background: linear-gradient(rgba(45, 33, 24, 0.72), rgba(45, 33, 24, 0.72)), $brand-clay;
+  color: #fff;
+  min-height: 520px;
+  display: flex;
+  align-items: center;
+}
+
+.hero-copy {
+  max-width: 640px;
+}
+
+.hero-copy h1,
+.page-title h1 {
+  font-size: clamp(2.4rem, 5vw, 4.8rem);
+  font-weight: 800;
+}
+
+.eyebrow {
+  color: $brand-gold;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.btn-primary {
+  background: $brand-clay;
+  border-color: $brand-clay;
+}
+
+.btn-primary:hover {
+  background: darken($brand-clay, 7%);
+  border-color: darken($brand-clay, 7%);
+}
+
+.menu-card,
+.menu-row,
+.form-shell,
+.admin-tile {
+  background: $surface;
+  border: 1px solid rgba($brand-ink, 0.08);
+  border-radius: 8px;
+  padding: 24px;
+}
+
+.menu-card-image,
+.map-placeholder {
+  min-height: 160px;
+  border-radius: 8px;
+  background: #dec8a7;
+}
+
+.menu-row,
+.takeout-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.takeout-item {
+  border-bottom: 1px solid rgba($brand-ink, 0.08);
+  padding: 16px 0;
+}
+
+.page-title {
+  background: $brand-ink;
+  color: #fff;
+  padding: 72px 0;
+}
+
+.info-grid,
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.admin-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.empty-state {
+  background: $surface;
+  border: 1px dashed rgba($brand-ink, 0.22);
+  border-radius: 8px;
+  padding: 28px;
+}
+
+.form-message {
+  margin-top: 16px;
+}

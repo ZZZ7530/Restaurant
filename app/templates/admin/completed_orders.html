@@ -1,0 +1,76 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}完成訂單{% endblock %}
+{% block page_heading %}完成訂單{% endblock %}
+
+{% block content %}
+{% set order_type_labels = {
+    "takeout": "外帶",
+    "dine_in": "內用",
+    "qrcode": "QRCode 點餐",
+    "manual": "現場點餐"
+} %}
+
+{% if error %}
+<div class="alert alert-danger">{{ error }}</div>
+{% endif %}
+
+<section class="admin-panel">
+    <div class="admin-panel-header">
+        <h2>已完成訂單紀錄</h2>
+        <a class="btn btn-outline-secondary" href="{{ url_for('admin.kitchen') }}">回到出餐管理</a>
+    </div>
+
+    <div class="completed-order-list">
+        {% for order in orders %}
+        <article class="completed-order-card">
+            <header class="completed-order-card__header">
+                <div>
+                    <span class="kitchen-order-card__type">{{ order_type_labels.get(order.order_type, order.order_type or "外帶") }}</span>
+                    <h3>{{ order.order_no }}</h3>
+                </div>
+                <strong>NT$ {{ "%.0f"|format(order.total_amount) }}</strong>
+            </header>
+
+            <dl class="completed-order-meta">
+                <div>
+                    <dt>顧客 / 桌號</dt>
+                    <dd>{% if order.order_type == "dine_in" %}{{ order.table_display_name or order.table_number or "-" }}{% else %}{{ order.customer_name or "-" }}{% endif %}</dd>
+                </div>
+                <div>
+                    <dt>電話</dt>
+                    <dd>{{ order.customer_phone or "-" }}</dd>
+                </div>
+                <div>
+                    <dt>下單時間</dt>
+                    <dd>{{ order.created_at }}</dd>
+                </div>
+                <div>
+                    <dt>完成時間</dt>
+                    <dd>{{ order.completed_at or "-" }}</dd>
+                </div>
+            </dl>
+
+            <div class="completed-order-items">
+                {% for item in order["items"] %}
+                <span>
+                    {{ item.item_name }}{% if item.specification %}（{{ item.specification }}）{% endif %} x{{ item.quantity }}
+                </span>
+                {% else %}
+                <span>沒有餐點明細</span>
+                {% endfor %}
+            </div>
+
+            <div class="admin-row-actions mt-3">
+                <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('admin.order_detail', order_id=order.id) }}">查看詳情</a>
+                <form method="post" action="{{ url_for('admin.order_delete_permanently', order_id=order.id) }}" onsubmit="return confirm('確定要永久刪除此訂單嗎？此操作無法復原。');">
+                    <button class="btn btn-sm btn-outline-danger" type="submit">永久刪除</button>
+                </form>
+            </div>
+        </article>
+        {% else %}
+        <p class="mb-0">目前沒有完成訂單。</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

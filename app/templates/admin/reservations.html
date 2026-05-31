@@ -1,0 +1,59 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}訂位管理{% endblock %}
+{% block page_heading %}訂位管理{% endblock %}
+
+{% block content %}
+<section class="admin-panel">
+    <div class="admin-panel-header">
+        <h2>訂位列表</h2>
+        <a class="btn btn-primary" href="{{ url_for('admin.reservation_new') }}">新增訂位</a>
+    </div>
+
+    {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+
+    <div class="table-responsive">
+        <table class="table admin-table align-middle">
+            <thead>
+                <tr>
+                    <th>日期</th>
+                    <th>時間</th>
+                    <th>姓名</th>
+                    <th>電話</th>
+                    <th>人數</th>
+                    <th>狀態</th>
+                    <th>備註</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for reservation in reservations %}
+                <tr>
+                    <td>{{ reservation.reservation_date }}</td>
+                    <td>{{ reservation.reservation_time }}</td>
+                    <td>{{ reservation.customer_name }}</td>
+                    <td>{{ reservation.customer_phone }}</td>
+                    <td>{{ reservation.party_size }}</td>
+                    <td><span class="admin-status">{{ reservation.status }}</span></td>
+                    <td>{{ reservation.note or "-" }}</td>
+                    <td>
+                        <div class="admin-row-actions">
+                            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('admin.reservation_edit', reservation_id=reservation.id) }}">編輯</a>
+                            <form method="post" action="{{ url_for('admin.reservation_delete', reservation_id=reservation.id) }}" onsubmit="return confirm('確定要刪除此訂位嗎？');">
+                                <button class="btn btn-sm btn-outline-danger" type="submit">刪除</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8">目前沒有訂位資料。</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

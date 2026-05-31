@@ -1,0 +1,15 @@
+@media (max-width: 768px) {
+  .section {
+    padding: 48px 0;
+  }
+
+  .info-grid,
+  .admin-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-actions {
+    display: grid;
+    gap: 12px;
+  }
+}

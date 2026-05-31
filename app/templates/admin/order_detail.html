@@ -1,0 +1,89 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}訂單詳情{% endblock %}
+{% block page_heading %}訂單詳情 #{{ order.id }}{% endblock %}
+
+{% block content %}
+<section class="admin-panel">
+    <div class="admin-panel-header">
+        <h2>{{ order.order_no }}</h2>
+        <a class="btn btn-primary" href="{{ url_for('admin.order_edit', order_id=order.id) }}">編輯訂單</a>
+    </div>
+
+    <dl class="admin-detail-grid">
+        {% if order.order_type == "dine_in" %}
+        <div>
+            <dt>訂單類型</dt>
+            <dd>內用</dd>
+        </div>
+        <div>
+            <dt>桌號</dt>
+            <dd>{{ order.table_display_name or order.table_number or "-" }}</dd>
+        </div>
+        <div>
+            <dt>下單時間</dt>
+            <dd>{{ order.created_at }}</dd>
+        </div>
+        {% else %}
+        <div>
+            <dt>訂單類型</dt>
+            <dd>外帶</dd>
+        </div>
+        <div>
+            <dt>顧客姓名</dt>
+            <dd>{{ order.customer_name }}</dd>
+        </div>
+        <div>
+            <dt>電話</dt>
+            <dd>{{ order.customer_phone }}</dd>
+        </div>
+        <div>
+            <dt>取餐時間</dt>
+            <dd>{{ order.pickup_date }} {{ order.pickup_time }}</dd>
+        </div>
+        {% endif %}
+        <div>
+            <dt>總金額</dt>
+            <dd>NT$ {{ "%.0f"|format(order.total_amount) }}</dd>
+        </div>
+        <div>
+            <dt>狀態</dt>
+            <dd>{{ order.status }}</dd>
+        </div>
+        <div>
+            <dt>備註</dt>
+            <dd>{{ order.note or "-" }}</dd>
+        </div>
+    </dl>
+
+    <h3 class="h5 mb-3">餐點明細</h3>
+    <div class="table-responsive mb-4">
+        <table class="table admin-table align-middle">
+            <thead>
+                <tr>
+                    <th>餐點</th>
+                    <th>單價</th>
+                    <th>數量</th>
+                    <th>小計</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order["items"] %}
+                <tr>
+                    <td>{{ item.item_name }}{% if item.specification %}（{{ item.specification }}）{% endif %}</td>
+                    <td>NT$ {{ "%.0f"|format(item.unit_price) }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>NT$ {{ "%.0f"|format(item.line_total) }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4">這筆訂單沒有餐點明細。</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <a class="btn btn-outline-secondary" href="{{ url_for('admin.dine_in_orders') if order.order_type == 'dine_in' else url_for('admin.orders') }}">返回訂單列表</a>
+</section>
+{% endblock %}

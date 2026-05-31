@@ -1,0 +1,33 @@
+{% extends "admin/base_admin.html" %}
+
+{% set is_edit = price and price.get("id") %}
+{% block title %}{{ "編輯時價" if is_edit else "新增時價" }}{% endblock %}
+{% block page_heading %}{{ "編輯時價" if is_edit else "新增時價" }}{% endblock %}
+
+{% block content %}
+<section class="admin-panel admin-form-panel">
+    {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+
+    <form method="post" action="{{ url_for('admin.daily_price_update', price_id=price.get('id')) if is_edit else url_for('admin.daily_price_create') }}">
+        <label class="form-label" for="item_name">菜名</label>
+        <input id="item_name" name="item_name" class="form-control" value="{{ price.get('item_name', '') if price else '' }}" placeholder="例如：蒜蓉龍蝦" required>
+
+        <label class="form-label mt-3" for="price_text">今日價格</label>
+        <input id="price_text" name="price_text" class="form-control" value="{{ price.get('price_text', '') if price else '' }}" placeholder="例如：NT$1280/隻" required>
+
+        {% set is_active = price.get('is_active', 1) if price else 1 %}
+        <label class="form-label mt-3" for="is_active">狀態</label>
+        <select id="is_active" name="is_active" class="form-select">
+            <option value="1" {% if is_active|string == "1" %}selected{% endif %}>啟用</option>
+            <option value="0" {% if is_active|string == "0" %}selected{% endif %}>停用</option>
+        </select>
+
+        <div class="admin-form-actions">
+            <button class="btn btn-primary" type="submit">儲存</button>
+            <a class="btn btn-outline-secondary" href="{{ url_for('admin.daily_prices') }}">返回列表</a>
+        </div>
+    </form>
+</section>
+{% endblock %}

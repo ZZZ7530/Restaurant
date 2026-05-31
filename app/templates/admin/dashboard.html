@@ -1,0 +1,33 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}後台總覽{% endblock %}
+{% block page_heading %}後台總覽{% endblock %}
+
+{% block content %}
+<section class="admin-summary-grid">
+    <article>
+        <span>今日訂位</span>
+        <strong>0</strong>
+        <p>等待串接訂位資料</p>
+    </article>
+    <article>
+        <span>外帶訂單</span>
+        <strong>0</strong>
+        <p>等待串接訂單資料</p>
+    </article>
+    <article>
+        <span>菜單品項</span>
+        <strong>0</strong>
+        <p>等待串接菜單資料</p>
+    </article>
+</section>
+
+<section class="admin-panel">
+    <h2>快速操作</h2>
+    <div class="admin-action-grid">
+        <a href="{{ url_for('admin.reservations') }}">查看訂位</a>
+        <a href="{{ url_for('admin.orders') }}">查看訂單</a>
+        <a href="{{ url_for('admin.menu_form') }}">新增餐點</a>
+    </div>
+</section>
+{% endblock %}

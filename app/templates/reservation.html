@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}線上訂位 | {{ restaurant_name }}{% endblock %}
+
+{% block content %}
+<section class="page-title">
+    <div class="container">
+        <p class="eyebrow">Reservation</p>
+        <h1>線上訂位</h1>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container form-shell">
+        <form id="reservationForm" class="row g-3" action="{{ url_for('reservation.create_reservation') }}" method="post">
+            <div class="col-md-6">
+                <label class="form-label" for="customer_name">姓名</label>
+                <input id="customer_name" name="customer_name" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="customer_phone">電話</label>
+                <input id="customer_phone" name="customer_phone" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label" for="reservation_date">日期</label>
+                <input id="reservation_date" name="reservation_date" type="date" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label" for="reservation_time">時間</label>
+                <input id="reservation_time" name="reservation_time" type="time" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label" for="party_size">人數</label>
+                <input id="party_size" name="party_size" type="number" min="1" class="form-control" required>
+            </div>
+            <div class="col-12">
+                <label class="form-label" for="note">備註</label>
+                <textarea id="note" name="note" class="form-control" rows="4"></textarea>
+            </div>
+            <div class="col-12">
+                <button class="btn btn-primary" type="submit">送出訂位</button>
+            </div>
+        </form>
+        <div id="reservationMessage" class="form-message" role="status"></div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/reservation.js') }}"></script>
+{% endblock %}

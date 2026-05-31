@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}外帶訂餐 | {{ restaurant_name }}{% endblock %}
+
+{% block content %}
+<section class="page-title">
+    <div class="container">
+        <p class="eyebrow">Takeout</p>
+        <h1>外帶訂餐</h1>
+    </div>
+</section>
+
+<section class="section takeout-page">
+    <div class="container">
+        <div class="takeout-layout">
+            <div class="takeout-menu">
+                {% for category in categories %}
+                <section class="takeout-category">
+                    <div class="menu-category__heading">
+                        <h2>{{ category.name }}</h2>
+                        {% if category.description %}
+                        <p>{{ category.description }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="takeout-menu-grid">
+                        {% for item in category["items"] %}
+                        {% set image_src = url_for('static', filename='images/background/' ~ item.image_filename) if item.image_filename else (url_for('static', filename=item.image_url) if item.image_url else url_for('static', filename='images/default-menu.jpg')) %}
+                        {% set price_value = item.price if item.price is number else 0 %}
+                        {% set price_label = item.price_label if item.price_label else ("NT$ " ~ "%.0f"|format(item.price) if item.price is number else item.price) %}
+                        {% set display_price_label = price_label %}
+                        {% set price_options = item.price_options or [] %}
+                        <article class="takeout-card"
+                            data-id="{{ item.id or '' }}"
+                            data-name="{{ item.name }}"
+                            data-price="{{ price_value }}"
+                            data-price-label="{{ price_label }}"
+                            data-display-price-label="{{ display_price_label }}"
+                            data-market-price="{{ 1 if item.is_market_price else 0 }}"
+                            data-has-price-options="{{ 1 if price_options|length > 1 else 0 }}"
+                            data-image-filename="{{ item.image_filename or '' }}">
+                            <img src="{{ image_src }}" alt="{{ item.name }}">
+                            <div class="takeout-card__body">
+                                <div>
+                                    <h3>{{ item.name }}</h3>
+                                    <strong>{{ display_price_label }}</strong>
+                                </div>
+                                {% if price_options|length > 1 %}
+                                <label class="takeout-card__spec">
+                                    <span>規格</span>
+                                    <select class="form-select form-select-sm" data-specification>
+                                        {% for option in price_options %}
+                                        <option
+                                            value="{{ option.specification }}"
+                                            data-price="{{ option.price }}"
+                                            data-price-label="NT$ {{ option.price }}">
+                                            {{ option.specification }} NT${{ option.price }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </label>
+                                {% endif %}
+                                <div class="takeout-card__actions">
+                                    <label>
+                                        <span>數量</span>
+                                        <input class="form-control form-control-sm" type="number" min="1" value="1" data-quantity>
+                                    </label>
+                                    <button class="btn btn-sm btn-primary" type="button" data-add-item>加入訂單</button>
+                                </div>
+                            </div>
+                        </article>
+                        {% endfor %}
+                    </div>
+                </section>
+                {% else %}
+                <div class="empty-state">目前沒有可供外帶的菜單資料。</div>
+                {% endfor %}
+            </div>
+
+            <aside class="takeout-cart-panel">
+                <form id="takeoutForm" class="form-shell">
+                    <h2>外帶訂單</h2>
+                    <div id="cartItems" class="cart-list"></div>
+                    <div class="cart-total">
+                        <span>總金額</span>
+                        <strong id="cartTotal">NT$ 0</strong>
+                    </div>
+                    <p class="cart-note">標示「時價」的餐點會由店家確認實際金額。</p>
+
+                    <label class="form-label" for="order_customer_name">姓名</label>
+                    <input id="order_customer_name" name="customer_name" class="form-control" required>
+                    <label class="form-label mt-3" for="order_customer_phone">電話</label>
+                    <input id="order_customer_phone" name="customer_phone" class="form-control" required>
+                    <label class="form-label mt-3" for="pickup_date">取餐日期</label>
+                    <input id="pickup_date" name="pickup_date" type="date" class="form-control" required>
+                    <label class="form-label mt-3" for="pickup_time">取餐時間</label>
+                    <input id="pickup_time" name="pickup_time" type="time" class="form-control" required>
+                    <label class="form-label mt-3" for="order_note">備註</label>
+                    <textarea id="order_note" name="note" class="form-control" rows="3"></textarea>
+                    <button class="btn btn-primary w-100 mt-4" type="submit">送出外帶訂單</button>
+                    <div id="takeoutMessage" class="form-message" role="status"></div>
+                </form>
+            </aside>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/takeout.js') }}"></script>
+{% endblock %}
