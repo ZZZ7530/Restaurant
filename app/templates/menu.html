@@ -18,7 +18,7 @@
                 {% for item in category["items"] %}
                 {% set image_src = url_for('static', filename='images/background/' ~ item.image_filename) if item.image_filename else (url_for('static', filename=item.image_url) if item.image_url else url_for('static', filename='images/default-menu.jpg')) %}
                 <div class="col-12 col-md-6 col-lg-3">
-                    <article class="menu-card">
+                    <article class="menu-card" data-menu-item-id="{{ item.id }}">
                         <img class="menu-card__image"
                             src="{{ image_src }}"
                             alt="{{ item.name }}">
@@ -51,4 +51,10 @@
         {% endfor %}
     </div>
 </section>
+{% set ai_mode = "menu" %}
+{% include "components/ai_recommendation_assistant.html" %}
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/ai_recommendation.js') }}"></script>
 {% endblock %}

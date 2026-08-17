@@ -2,6 +2,7 @@ from flask import Flask, jsonify
 
 from app.config import Config
 from app.routes.admin_routes import admin_bp
+from app.routes.ai_routes import ai_bp
 from app.routes.order_routes import order_bp
 from app.routes.public_routes import public_bp
 from app.routes.reservation_routes import reservation_bp
@@ -15,6 +16,7 @@ def create_app(config_object=Config):
     app.register_blueprint(reservation_bp)
     app.register_blueprint(order_bp)
     app.register_blueprint(admin_bp)
+    app.register_blueprint(ai_bp)
 
     @app.context_processor
     def inject_brand():

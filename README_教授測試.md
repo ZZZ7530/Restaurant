@@ -112,12 +112,13 @@ Copy-Item .env.example .env
 
 基本展示時，LINE token 可以不填。
 
-請確認 `.env` 至少有後台帳密設定：
+後台管理員帳號請使用專案提供的腳本建立，不要把管理員密碼寫入 README、`.env.example`、Python、SQL 或任何 Git 追蹤檔案。
 
-```env
-ADMIN_USERNAME=admin
-ADMIN_PASSWORD=admin123
+```powershell
+python scripts/create_admin_user.py --username <管理員帳號> --display-name <顯示名稱> --role owner
 ```
+
+執行後請依照終端機提示輸入密碼；密碼會以 hash 形式儲存在資料庫。
 
 LINE 相關設定可以先空白：
 
@@ -187,8 +188,8 @@ http://127.0.0.1:5000/admin/login
 後台帳號密碼：
 
 ```text
-帳號：admin
-密碼：admin123
+請使用 scripts/create_admin_user.py 建立的管理員帳號登入。
+密碼不得寫入 README、.env.example 或程式碼。
 ```
 
 後台常用頁面：
@@ -272,12 +273,7 @@ http://127.0.0.1:5000/
 
 ### 問題三：後台無法登入
 
-請確認 `.env` 有：
-
-```env
-ADMIN_USERNAME=admin
-ADMIN_PASSWORD=admin123
-```
+請確認已使用 `scripts/create_admin_user.py` 建立後台管理員，且 `admin_users.password_hash` 內儲存的是密碼 hash，不是明文密碼。
 
 如果修改 `.env`，請重新啟動 Flask：
 

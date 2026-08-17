@@ -43,7 +43,7 @@ function renderCart() {
         <strong>${escapeHtml(item.specification ? `${item.item_name}（${item.specification}）` : item.item_name)}</strong>
         <span>${escapeHtml(item.display_price_label)} x ${item.quantity}</span>
         ${item.note ? `<small>備註：${escapeHtml(item.note)}</small>` : ""}
-        <small>${item.is_market_price ? "小計需店家確認" : `小計 NT$ ${moneyFormatter.format(item.unit_price * item.quantity)}`}</small>
+        <small>${item.is_market_price ? "小計需由店家確認" : `小計 NT$ ${moneyFormatter.format(item.unit_price * item.quantity)}`}</small>
       </div>
       <div class="cart-item__controls">
         <input class="form-control form-control-sm" type="number" min="1" value="${item.quantity}" data-cart-quantity>
@@ -52,7 +52,7 @@ function renderCart() {
     </div>
   `).join("");
 
-  cartTotal.textContent = hasMarketPriceItem() ? "需店家確認" : `NT$ ${moneyFormatter.format(getCartTotal())}`;
+  cartTotal.textContent = hasMarketPriceItem() ? "需由店家確認" : `NT$ ${moneyFormatter.format(getCartTotal())}`;
 }
 
 function buildCartId(itemElement, note) {
@@ -61,45 +61,67 @@ function buildCartId(itemElement, note) {
   return `${itemElement.dataset.id || itemElement.dataset.name}::${specification}::${note}`;
 }
 
+function addCartItemFromElement(itemElement, quantity, requestedSpecification = "", note = "") {
+  const quantityInput = itemElement.querySelector("[data-quantity]");
+  const specificationSelect = itemElement.querySelector("[data-specification]");
+  if (specificationSelect && requestedSpecification) {
+    const option = Array.from(specificationSelect.options).find(
+      (candidate) => candidate.value === requestedSpecification,
+    );
+    if (option) {
+      specificationSelect.value = requestedSpecification;
+    }
+  }
+
+  const selectedOption = specificationSelect ? specificationSelect.selectedOptions[0] : null;
+  const noteInput = itemElement.querySelector("[data-item-note]");
+  const itemNote = note || (noteInput ? noteInput.value.trim() : "");
+  const addQuantity = Math.max(Number(quantity || quantityInput?.value) || 1, 1);
+  const cartId = buildCartId(itemElement, itemNote);
+  const existing = cart.get(cartId);
+  const isMarketPrice = itemElement.dataset.marketPrice === "1";
+  const specification = selectedOption ? selectedOption.value : "";
+  const unitPrice = selectedOption
+    ? Number(selectedOption.dataset.price) || 0
+    : Number(itemElement.dataset.price) || 0;
+  const displayPriceLabel = selectedOption
+    ? (selectedOption.dataset.priceLabel || `NT$ ${unitPrice}`)
+    : (itemElement.dataset.displayPriceLabel || itemElement.dataset.priceLabel || "請洽店家");
+
+  cart.set(cartId, {
+    cart_id: cartId,
+    menu_item_id: itemElement.dataset.id ? Number(itemElement.dataset.id) : null,
+    item_name: itemElement.dataset.name,
+    specification,
+    unit_price: isMarketPrice ? 0 : unitPrice,
+    price_label: itemElement.dataset.priceLabel || "時價",
+    display_price_label: displayPriceLabel,
+    is_market_price: isMarketPrice,
+    image_filename: itemElement.dataset.imageFilename || null,
+    note: itemNote,
+    quantity: existing ? existing.quantity + addQuantity : addQuantity,
+  });
+
+  if (quantityInput) quantityInput.value = "1";
+  if (noteInput && !note) noteInput.value = "";
+  renderCart();
+  return true;
+}
+
 document.querySelectorAll("[data-add-item]").forEach((button) => {
   button.addEventListener("click", () => {
     const itemElement = button.closest(".takeout-card");
-    const quantityInput = itemElement.querySelector("[data-quantity]");
-    const specificationSelect = itemElement.querySelector("[data-specification]");
-    const selectedOption = specificationSelect ? specificationSelect.selectedOptions[0] : null;
-    const noteInput = itemElement.querySelector("[data-item-note]");
-    const note = noteInput ? noteInput.value.trim() : "";
-    const quantity = Math.max(Number(quantityInput.value) || 1, 1);
-    const cartId = buildCartId(itemElement, note);
-    const existing = cart.get(cartId);
-    const isMarketPrice = itemElement.dataset.marketPrice === "1";
-    const specification = selectedOption ? selectedOption.value : "";
-    const unitPrice = selectedOption
-      ? Number(selectedOption.dataset.price) || 0
-      : Number(itemElement.dataset.price) || 0;
-    const displayPriceLabel = selectedOption
-      ? (selectedOption.dataset.priceLabel || `NT$ ${unitPrice}`)
-      : (itemElement.dataset.displayPriceLabel || itemElement.dataset.priceLabel || "請洽店家");
-
-    cart.set(cartId, {
-      cart_id: cartId,
-      menu_item_id: itemElement.dataset.id ? Number(itemElement.dataset.id) : null,
-      item_name: itemElement.dataset.name,
-      specification,
-      unit_price: isMarketPrice ? 0 : unitPrice,
-      price_label: itemElement.dataset.priceLabel || "時價",
-      display_price_label: displayPriceLabel,
-      is_market_price: isMarketPrice,
-      image_filename: itemElement.dataset.imageFilename || null,
-      note,
-      quantity: existing ? existing.quantity + quantity : quantity,
-    });
-
-    quantityInput.value = "1";
-    if (noteInput) noteInput.value = "";
-    renderCart();
+    addCartItemFromElement(itemElement);
   });
 });
+
+window.RestaurantCart = {
+  addItem(item) {
+    const itemElement = document.querySelector(`.takeout-card[data-id="${item.menu_item_id}"]`);
+    if (!itemElement) return false;
+    return addCartItemFromElement(itemElement, item.quantity, item.specification);
+  },
+};
 
 if (cartItems) {
   cartItems.addEventListener("input", (event) => {

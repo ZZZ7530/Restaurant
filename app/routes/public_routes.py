@@ -3,6 +3,7 @@ from flask import Blueprint, abort, current_app, jsonify, render_template, reque
 from app.services.menu_service import MenuService
 from app.services.table_service import TableService
 from app.services.line_service import LineService
+from app.services.line_customer_binding_service import LineCustomerBindingService
 
 
 public_bp = Blueprint("public", __name__)
@@ -32,6 +33,9 @@ def newyear_menu():
 
 @public_bp.get("/test-line")
 def test_line():
+    if current_app.config.get("IS_PRODUCTION"):
+        abort(404)
+
     if not LineService.is_user_notification_configured():
         return "LINE \u8a2d\u5b9a\u5c1a\u672a\u5b8c\u6210", 200
 
@@ -42,35 +46,53 @@ def test_line():
     return (
         "LINE \u901a\u77e5\u767c\u9001\u5931\u6557\u3002\n"
         f"HTTP Status: {result['status_code']}\n"
-        f"Response Body: {result['response_body']}\n"
         f"Error: {result['error']}"
     ), 200
 
 
 @public_bp.post("/line/webhook")
 def line_webhook():
-    payload = request.get_json(silent=True) or {}
+    if not current_app.config.get("LINE_CHANNEL_SECRET", "").strip():
+        current_app.logger.warning("LINE webhook rejected: channel secret is not configured.")
+        return jsonify({"error": "LINE webhook is not configured."}), 503
+
+    signature = request.headers.get("X-Line-Signature", "")
+    if not signature:
+        current_app.logger.warning("LINE webhook rejected: missing signature.")
+        return jsonify({"error": "Missing LINE signature."}), 400
+
+    body = request.get_data(cache=True)
+    if not LineService.verify_webhook_signature(body, signature):
+        current_app.logger.warning("LINE webhook rejected: invalid signature.")
+        return jsonify({"error": "Invalid LINE signature."}), 403
+
+    payload = request.get_json(silent=True)
+    if not isinstance(payload, dict):
+        current_app.logger.warning("LINE webhook rejected: malformed JSON.")
+        return jsonify({"error": "Malformed webhook payload."}), 400
+
     events = payload.get("events", [])
+    if not isinstance(events, list):
+        current_app.logger.warning("LINE webhook rejected: malformed events.")
+        return jsonify({"error": "Malformed webhook events."}), 400
 
     if not events:
-        current_app.logger.info("LINE webhook received without events: %s", payload)
+        current_app.logger.info("LINE webhook received without events.")
         return jsonify({"status": "ok"}), 200
 
     for event in events:
-        source = event.get("source", {})
-        user_id = source.get("userId")
-        group_id = source.get("groupId")
-        room_id = source.get("roomId")
-        current_app.logger.info(
-            "LINE webhook source: userId=%s groupId=%s roomId=%s",
-            user_id,
-            group_id,
-            room_id,
-        )
+        if not isinstance(event, dict):
+            continue
+        current_app.logger.info("LINE webhook event received: type=%s", event.get("type"))
+        if event.get("type") != "message":
+            continue
+        message = event.get("message") or {}
+        if message.get("type") != "text":
+            continue
 
-        message = event.get("message", {})
-        if message.get("type") == "text":
-            current_app.logger.info("LINE webhook text message: %s", message.get("text", ""))
+        result = LineCustomerBindingService.bind_from_message_event(event)
+        if result.get("reply_text"):
+            LineService.safe_reply_text(event.get("replyToken"), result["reply_text"])
 
     return jsonify({"status": "ok"}), 200
 

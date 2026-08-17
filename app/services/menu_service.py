@@ -197,6 +197,32 @@ class MenuService:
     def list_synced_public_menu(cls):
         return cls.list_menu_for_public()
 
+    @classmethod
+    def list_ai_recommendable_items(cls):
+        recommendable_items = []
+        for category in cls.list_synced_public_menu():
+            category_name = category.get("name") or ""
+            for item in category.get("items", []):
+                recommendable_items.append(
+                    {
+                        "menu_item_id": item.get("id"),
+                        "name": item.get("name"),
+                        "category_name": category_name,
+                        "description": item.get("description"),
+                        "price": item.get("price") or 0,
+                        "display_price_label": item.get("display_price_label")
+                        or item.get("price_label"),
+                        "price_options": item.get("price_options") or [],
+                        "is_market_price": bool(item.get("is_market_price")),
+                        "image_filename": item.get("image_filename"),
+                    }
+                )
+        return [
+            item
+            for item in recommendable_items
+            if item["menu_item_id"] and item["name"]
+        ]
+
     @staticmethod
     def list_featured_items():
         try:

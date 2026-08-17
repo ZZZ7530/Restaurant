@@ -104,8 +104,11 @@
         </div>
     </div>
 </section>
+{% set ai_mode = "takeout" %}
+{% include "components/ai_recommendation_assistant.html" %}
 {% endblock %}
 
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/takeout.js') }}"></script>
+<script src="{{ url_for('static', filename='js/ai_recommendation.js') }}"></script>
 {% endblock %}

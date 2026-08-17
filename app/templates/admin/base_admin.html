@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}後台管理系統{% endblock %}</title>
+    <title>{% block title %}餐廳後台{% endblock %}</title>
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}?v=1">
     <link rel="apple-touch-icon" href="{{ url_for('static', filename='images/favicon.png') }}?v=1">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,16 +23,17 @@
             </span>
         </a>
         <nav>
-            <a class="{% if active_endpoint == 'admin.dashboard' %}is-active{% endif %}" href="{{ url_for('admin.dashboard') }}">總覽</a>
+            <a class="{% if active_endpoint == 'admin.dashboard' %}is-active{% endif %}" href="{{ url_for('admin.dashboard') }}">儀表板</a>
             <a class="{% if 'reservation' in active_endpoint %}is-active{% endif %}" href="{{ url_for('admin.reservations') }}">訂位管理</a>
             <a class="{% if active_endpoint in ['admin.orders', 'admin.order_new', 'admin.order_create', 'admin.order_detail', 'admin.order_edit', 'admin.order_update'] %}is-active{% endif %}" href="{{ url_for('admin.orders') }}">外帶訂單</a>
             <a class="{% if active_endpoint == 'admin.dine_in_orders' %}is-active{% endif %}" href="{{ url_for('admin.dine_in_orders') }}">內用訂單</a>
-            <a class="{% if active_endpoint == 'admin.table_qrcodes' %}is-active{% endif %}" href="{{ url_for('admin.table_qrcodes') }}">桌號 QR Code</a>
-            <a class="{% if active_endpoint in ['admin.kitchen', 'admin.order_item_complete', 'admin.order_item_undo_complete', 'admin.order_complete'] %}is-active{% endif %}" href="{{ url_for('admin.kitchen') }}">出餐管理</a>
+            <a class="{% if active_endpoint == 'admin.table_qrcodes' %}is-active{% endif %}" href="{{ url_for('admin.table_qrcodes') }}">桌位 QR Code</a>
+            <a class="{% if active_endpoint in ['admin.kitchen', 'admin.order_item_complete', 'admin.order_item_undo_complete', 'admin.order_complete'] %}is-active{% endif %}" href="{{ url_for('admin.kitchen') }}">廚房看板</a>
             <a class="{% if active_endpoint in ['admin.completed_orders', 'admin.order_delete_permanently'] %}is-active{% endif %}" href="{{ url_for('admin.completed_orders') }}">完成訂單</a>
+            <a class="{% if active_endpoint == 'admin.revenue' %}is-active{% endif %}" href="{{ url_for('admin.revenue') }}">營業分析</a>
             <a class="{% if 'menu' in active_endpoint and 'daily' not in active_endpoint %}is-active{% endif %}" href="{{ url_for('admin.menu_items') }}">菜單管理</a>
             <a class="{% if 'daily_price' in active_endpoint or active_endpoint == 'admin.daily_prices' %}is-active{% endif %}" href="{{ url_for('admin.daily_prices') }}">時價管理</a>
-            <a href="{{ url_for('public.index') }}">回到官網</a>
+            <a href="{{ url_for('public.index') }}">回到前台</a>
         </nav>
     </aside>
 
@@ -40,7 +41,7 @@
         <header class="admin-topbar">
             <div>
                 <p class="admin-kicker">Restaurant Admin</p>
-                <h1>{% block page_heading %}後台管理系統{% endblock %}</h1>
+                <h1>{% block page_heading %}餐廳後台{% endblock %}</h1>
             </div>
             <a class="btn btn-outline-secondary" href="{{ url_for('admin.logout') }}">登出</a>
         </header>

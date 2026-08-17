@@ -1,15 +1,264 @@
 {% extends "admin/base_admin.html" %}
 
-{% block title %}營業額統計{% endblock %}
+{% block title %}營業分析{% endblock %}
+{% block page_heading %}營業分析{% endblock %}
 
 {% block content %}
-<section class="admin-panel">
-    <div class="admin-page-heading">
-        <p>Revenue</p>
-        <h1>營業額統計</h1>
+{% set filters = dashboard.filters %}
+{% set summary = dashboard.summary %}
+{% set chart_data = dashboard.chart_data %}
+
+<section class="admin-panel revenue-filter-panel">
+    <div class="admin-panel-header">
+        <div>
+            <p class="admin-kicker">Revenue</p>
+            <h2>日期篩選</h2>
+        </div>
+        <span class="revenue-range">{{ filters.label }}</span>
     </div>
-    <div class="admin-tile">
-        <p>營業額統計功能尚未開放，之後可在這裡查看訂單金額與期間報表。</p>
+
+    {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+    {% if filters.error %}
+    <div class="alert alert-warning">{{ filters.error }}</div>
+    {% endif %}
+
+    <form class="revenue-filter-form" method="get" action="{{ url_for('admin.revenue') }}">
+        <div class="revenue-preset-list" role="group" aria-label="日期區間">
+            {% set presets = [
+                ("today", "今天"),
+                ("week", "本週"),
+                ("month", "本月"),
+                ("last7", "最近 7 天"),
+                ("last30", "最近 30 天")
+            ] %}
+            {% for value, label in presets %}
+            <a class="btn {% if filters.preset == value %}btn-primary{% else %}btn-outline-secondary{% endif %}"
+               href="{{ url_for('admin.revenue', preset=value) }}">
+                {{ label }}
+            </a>
+            {% endfor %}
+        </div>
+
+        <input type="hidden" name="preset" value="custom">
+        <div class="revenue-custom-range">
+            <div>
+                <label class="form-label" for="start_date">開始日期</label>
+                <input id="start_date" name="start_date" type="date" class="form-control" value="{{ filters.custom_start or filters.start_date_value }}">
+            </div>
+            <div>
+                <label class="form-label" for="end_date">結束日期</label>
+                <input id="end_date" name="end_date" type="date" class="form-control" value="{{ filters.custom_end or filters.end_date_value }}">
+            </div>
+            <button class="btn btn-primary" type="submit">查詢</button>
+        </div>
+    </form>
+</section>
+
+<section class="admin-summary-grid revenue-summary-grid">
+    <article>
+        <span>區間營業額</span>
+        <strong>{{ "NT$ {:,.0f}".format(summary.total_revenue) }}</strong>
+        <p>{{ filters.start_date_value }} 至 {{ filters.end_date_value }}</p>
+    </article>
+    <article>
+        <span>完成訂單數</span>
+        <strong>{{ summary.completed_order_count }}</strong>
+        <p>僅計入 completed 訂單</p>
+    </article>
+    <article>
+        <span>平均客單價</span>
+        <strong>{{ "NT$ {:,.0f}".format(summary.average_order_value) }}</strong>
+        <p>營業額除以完成訂單數</p>
+    </article>
+    <article>
+        <span>本月營業額</span>
+        <strong>{{ "NT$ {:,.0f}".format(summary.month_revenue) }}</strong>
+        <p>依完成日期統計本月</p>
+    </article>
+</section>
+
+<section class="admin-panel revenue-chart-panel">
+    <div class="admin-panel-header">
+        <h2>每日營業額趨勢</h2>
+        <span class="admin-muted">{{ filters.label }}</span>
+    </div>
+    <div class="revenue-chart-box">
+        <canvas id="revenueTrendChart" aria-label="每日營業額折線圖"></canvas>
+    </div>
+    {% if not dashboard.has_daily_data %}
+    <p class="admin-empty-state revenue-empty-inline">此區間尚無完成訂單，圖表以 0 顯示。</p>
+    {% endif %}
+</section>
+
+<section class="revenue-two-column">
+    <div class="admin-panel">
+        <div class="admin-panel-header">
+            <h2>內用 / 外帶營業分析</h2>
+        </div>
+        <div class="revenue-type-layout">
+            <div class="revenue-chart-box revenue-chart-box--small">
+                <canvas id="revenueTypeChart" aria-label="內用外帶營業額圓餅圖"></canvas>
+            </div>
+            <dl class="revenue-type-stats">
+                <div>
+                    <dt>內用營業額</dt>
+                    <dd>{{ "NT$ {:,.0f}".format(summary.dine_in_revenue) }}</dd>
+                    <small>{{ summary.dine_in_ratio }}%</small>
+                </div>
+                <div>
+                    <dt>外帶營業額</dt>
+                    <dd>{{ "NT$ {:,.0f}".format(summary.takeout_revenue) }}</dd>
+                    <small>{{ summary.takeout_ratio }}%</small>
+                </div>
+            </dl>
+        </div>
+    </div>
+
+    <div class="admin-panel">
+        <div class="admin-panel-header">
+            <h2>熱銷餐點 TOP 5</h2>
+        </div>
+        <div class="table-responsive">
+            <table class="table admin-table align-middle">
+                <thead>
+                    <tr>
+                        <th>排名</th>
+                        <th>餐點名稱</th>
+                        <th>銷售數量</th>
+                        <th>銷售金額</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in dashboard.top_items %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ item.item_name }}</td>
+                        <td>{{ item.total_quantity }}</td>
+                        <td>{{ "NT$ {:,.0f}".format(item.total_sales) }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4">此區間尚無熱銷餐點資料。</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </section>
+
+<section class="admin-panel">
+    <div class="admin-panel-header">
+        <h2>每日營業明細</h2>
+    </div>
+    <div class="table-responsive">
+        <table class="table admin-table align-middle">
+            <thead>
+                <tr>
+                    <th>日期</th>
+                    <th>完成訂單數</th>
+                    <th>內用營業額</th>
+                    <th>外帶營業額</th>
+                    <th>總營業額</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in dashboard.daily_detail_rows %}
+                <tr>
+                    <td>{{ row.date.isoformat() }}</td>
+                    <td>{{ row.completed_order_count }}</td>
+                    <td>{{ "NT$ {:,.0f}".format(row.dine_in_revenue) }}</td>
+                    <td>{{ "NT$ {:,.0f}".format(row.takeout_revenue) }}</td>
+                    <td>{{ "NT$ {:,.0f}".format(row.total_revenue) }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5">此區間尚無每日營業資料。</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script>
+    const revenueChartData = {{ chart_data|tojson }};
+    const moneyFormatter = new Intl.NumberFormat("zh-TW", {
+        style: "currency",
+        currency: "TWD",
+        maximumFractionDigits: 0
+    });
+
+    const trendContext = document.getElementById("revenueTrendChart");
+    if (trendContext) {
+        new Chart(trendContext, {
+            type: "line",
+            data: {
+                labels: revenueChartData.trend_labels,
+                datasets: [{
+                    label: "每日營業額",
+                    data: revenueChartData.trend_revenue,
+                    borderColor: "#2563eb",
+                    backgroundColor: "rgba(37, 99, 235, 0.12)",
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.32,
+                    pointRadius: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => moneyFormatter.format(context.parsed.y || 0)
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: (value) => moneyFormatter.format(value)
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    const typeContext = document.getElementById("revenueTypeChart");
+    if (typeContext) {
+        new Chart(typeContext, {
+            type: "doughnut",
+            data: {
+                labels: revenueChartData.type_labels,
+                datasets: [{
+                    data: revenueChartData.type_revenue,
+                    backgroundColor: ["#16a34a", "#f59e0b"],
+                    borderColor: "#ffffff",
+                    borderWidth: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: "bottom" },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => `${context.label}: ${moneyFormatter.format(context.parsed || 0)}`
+                        }
+                    }
+                },
+                cutout: "62%"
+            }
+        });
+    }
+</script>
 {% endblock %}

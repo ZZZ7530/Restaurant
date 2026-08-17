@@ -1,3 +1,5 @@
+from flask import current_app
+
 from app.repositories.reservation_repository import ReservationRepository
 from app.services.line_service import LineService
 
@@ -18,6 +20,12 @@ class ReservationService:
         reservation_id = ReservationRepository.create(data)
         reservation = {"id": reservation_id, **data}
         LineService.notify_new_reservation(reservation)
+        try:
+            LineService.notify_customer_reservation_success(reservation)
+        except Exception:
+            current_app.logger.exception(
+                "LINE customer reservation notification failed without blocking request."
+            )
 
         return reservation
 

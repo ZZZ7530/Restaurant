@@ -1,0 +1,47 @@
+<div class="ai-assistant" data-ai-assistant data-ai-mode="{{ ai_mode }}">
+    <button class="ai-assistant__fab" type="button" data-ai-open>
+        ✨ AI 推薦
+    </button>
+
+    <div class="ai-assistant__overlay" data-ai-close></div>
+
+    <aside class="ai-assistant__panel" aria-hidden="true" aria-label="AI 點餐助手">
+        <div class="ai-assistant__header">
+            <div>
+                <p>AI 點餐助手</p>
+                <h2>讓 AI 幫你配一桌</h2>
+            </div>
+            <button class="ai-assistant__close" type="button" data-ai-close aria-label="關閉">×</button>
+        </div>
+
+        <form class="ai-assistant__form" data-ai-form>
+            <input type="hidden" name="mode" value="{{ ai_mode }}">
+            <div class="ai-assistant__grid">
+                <label>
+                    <span>用餐人數</span>
+                    <input class="form-control" name="party_size" type="number" min="1" max="20" value="2" required>
+                </label>
+                <label>
+                    <span>預算</span>
+                    <input class="form-control" name="budget" type="number" min="0" max="100000" step="1" placeholder="例如 2500">
+                </label>
+            </div>
+            <label>
+                <span>喜好</span>
+                <input class="form-control" name="preferences" placeholder="海鮮、魚、蝦、湯">
+            </label>
+            <label>
+                <span>飲食需求</span>
+                <input class="form-control" name="dietary_needs" placeholder="不辣、不吃生食">
+            </label>
+            <label>
+                <span>其他需求</span>
+                <textarea class="form-control" name="message" rows="3" maxlength="300" placeholder="例如：希望有魚、有蝦、有湯"></textarea>
+            </label>
+            <button class="btn btn-primary w-100" type="submit" data-ai-submit>幫我推薦</button>
+        </form>
+
+        <div class="ai-assistant__message" data-ai-message role="status"></div>
+        <div class="ai-assistant__results" data-ai-results></div>
+    </aside>
+</div>

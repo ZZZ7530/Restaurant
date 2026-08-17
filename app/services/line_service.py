@@ -1,3 +1,6 @@
+import base64
+import hashlib
+import hmac
 import json
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
@@ -7,6 +10,30 @@ from flask import current_app
 
 class LineService:
     PUSH_MESSAGE_URL = "https://api.line.me/v2/bot/message/push"
+    REPLY_MESSAGE_URL = "https://api.line.me/v2/bot/message/reply"
+
+    @staticmethod
+    def verify_webhook_signature(body, signature):
+        channel_secret = current_app.config.get("LINE_CHANNEL_SECRET", "").strip()
+        if not channel_secret:
+            current_app.logger.warning("LINE webhook rejected: channel secret is not configured.")
+            return False
+        if not signature:
+            current_app.logger.warning("LINE webhook rejected: missing signature.")
+            return False
+
+        try:
+            digest = hmac.new(
+                channel_secret.encode("utf-8"),
+                body,
+                hashlib.sha256,
+            ).digest()
+            expected_signature = base64.b64encode(digest).decode("utf-8")
+        except Exception:
+            current_app.logger.exception("LINE webhook signature calculation failed.")
+            return False
+
+        return hmac.compare_digest(expected_signature, signature.strip())
 
     @staticmethod
     def is_user_notification_configured():
@@ -74,15 +101,53 @@ class LineService:
         return cls._safe_store_notification(message)
 
     @classmethod
+    def notify_customer_reservation_success(cls, reservation):
+        from app.services.line_customer_binding_service import LineCustomerBindingService
+
+        line_user_id = LineCustomerBindingService.find_active_user_id_by_phone(
+            reservation.get("customer_phone")
+        )
+        if not line_user_id:
+            return {"ok": False, "skipped": True, "error": "customer line binding not found"}
+
+        message = "\n".join(
+            [
+                "【訂位成功】",
+                "您的訂位已建立",
+                f"日期：{reservation.get('reservation_date') or '-'}",
+                f"時間：{reservation.get('reservation_time') or '-'}",
+                f"人數：{reservation.get('party_size') or '-'}",
+                "感謝您的預約。",
+            ]
+        )
+        return cls._safe_customer_notification(line_user_id, message)
+
+    @classmethod
+    def notify_customer_takeout_order_success(cls, order):
+        from app.services.line_customer_binding_service import LineCustomerBindingService
+
+        line_user_id = LineCustomerBindingService.find_active_user_id_by_phone(
+            order.get("customer_phone")
+        )
+        if not line_user_id:
+            return {"ok": False, "skipped": True, "error": "customer line binding not found"}
+
+        pickup_time = f"{order.get('pickup_date') or '-'} {order.get('pickup_time') or '-'}"
+        message = "\n".join(
+            [
+                "【外帶訂單建立成功】",
+                f"訂單編號：{order.get('order_no') or '-'}",
+                f"取餐時間：{pickup_time}",
+                f"總金額：{cls._format_total(order.get('total_amount'))}",
+                "請依預定時間到店取餐。",
+            ]
+        )
+        return cls._safe_customer_notification(line_user_id, message)
+
+    @classmethod
     def send_text_to_user(cls, message):
         token = current_app.config.get("LINE_CHANNEL_ACCESS_TOKEN", "").strip()
         user_id = current_app.config.get("LINE_USER_ID", "").strip()
-        print(f"LINE token loaded: {bool(token)}")
-        print(f"LINE user id loaded: {bool(user_id)}")
-        print(f"LINE target user id: {user_id or '(missing)'}")
-        current_app.logger.warning("LINE token loaded: %s", bool(token))
-        current_app.logger.warning("LINE user id loaded: %s", bool(user_id))
-        current_app.logger.warning("LINE target user id: %s", user_id or "(missing)")
 
         if not token or not user_id:
             current_app.logger.info("LINE notification skipped: missing token or user id.")
@@ -96,21 +161,28 @@ class LineService:
         return cls._push_message(token=token, target_id=user_id, message=message)
 
     @classmethod
+    def send_text_to_line_user(cls, line_user_id, message):
+        token = current_app.config.get("LINE_CHANNEL_ACCESS_TOKEN", "").strip()
+        target_id = str(line_user_id or "").strip()
+
+        if not token or not target_id:
+            current_app.logger.info("LINE customer notification skipped: missing token or user id.")
+            return {
+                "ok": False,
+                "status_code": None,
+                "response_body": "",
+                "error": "LINE_CHANNEL_ACCESS_TOKEN or customer line user id is missing.",
+            }
+
+        return cls._push_message(token=token, target_id=target_id, message=message)
+
+    @classmethod
     def send_text_to_store(cls, message):
         token = current_app.config.get("LINE_CHANNEL_ACCESS_TOKEN", "").strip()
         group_id = current_app.config.get("LINE_GROUP_ID", "").strip()
         user_id = current_app.config.get("LINE_USER_ID", "").strip()
         target_id = group_id or user_id
         target_type = "group" if group_id else "user"
-
-        print(f"LINE token loaded: {bool(token)}")
-        print(f"LINE store target loaded: {bool(target_id)}")
-        print(f"LINE target type: {target_type if target_id else '(missing)'}")
-        print(f"LINE target id: {target_id or '(missing)'}")
-        current_app.logger.warning("LINE token loaded: %s", bool(token))
-        current_app.logger.warning("LINE store target loaded: %s", bool(target_id))
-        current_app.logger.warning("LINE target type: %s", target_type if target_id else "(missing)")
-        current_app.logger.warning("LINE target id: %s", target_id or "(missing)")
 
         if not token or not target_id:
             current_app.logger.info("LINE notification skipped: missing token or target id.")
@@ -121,6 +193,7 @@ class LineService:
                 "error": "LINE_CHANNEL_ACCESS_TOKEN and LINE_USER_ID or LINE_GROUP_ID are required.",
             }
 
+        current_app.logger.info("LINE store notification target type: %s", target_type)
         return cls._push_message(token=token, target_id=target_id, message=message)
 
     @classmethod
@@ -135,6 +208,52 @@ class LineService:
                 "response_body": "",
                 "error": str(exc),
             }
+
+    @classmethod
+    def _safe_customer_notification(cls, line_user_id, message):
+        try:
+            return cls.send_text_to_line_user(line_user_id, message)
+        except Exception:
+            current_app.logger.exception("LINE customer notification failed without blocking request.")
+            return {
+                "ok": False,
+                "status_code": None,
+                "response_body": "",
+                "error": "customer notification failed",
+            }
+
+    @classmethod
+    def safe_reply_text(cls, reply_token, message):
+        try:
+            return cls.reply_text(reply_token, message)
+        except Exception:
+            current_app.logger.exception("LINE reply failed without blocking webhook.")
+            return {
+                "ok": False,
+                "status_code": None,
+                "response_body": "",
+                "error": "reply failed",
+            }
+
+    @classmethod
+    def reply_text(cls, reply_token, message):
+        token = current_app.config.get("LINE_CHANNEL_ACCESS_TOKEN", "").strip()
+        reply_token = str(reply_token or "").strip()
+
+        if not token or not reply_token:
+            current_app.logger.info("LINE reply skipped: missing token or reply token.")
+            return {
+                "ok": False,
+                "status_code": None,
+                "response_body": "",
+                "error": "LINE_CHANNEL_ACCESS_TOKEN or reply token is missing.",
+            }
+
+        payload = {
+            "replyToken": reply_token,
+            "messages": [{"type": "text", "text": message}],
+        }
+        return cls._send_line_request(cls.REPLY_MESSAGE_URL, token, payload)
 
     @staticmethod
     def _format_items(items):
@@ -167,8 +286,12 @@ class LineService:
                 }
             ],
         }
+        return cls._send_line_request(cls.PUSH_MESSAGE_URL, token, payload)
+
+    @classmethod
+    def _send_line_request(cls, url, token, payload):
         request = Request(
-            cls.PUSH_MESSAGE_URL,
+            url,
             data=json.dumps(payload).encode("utf-8"),
             headers={
                 "Authorization": f"Bearer {token}",
@@ -180,10 +303,11 @@ class LineService:
         try:
             with urlopen(request, timeout=10) as response:
                 response_body = response.read().decode("utf-8", errors="replace")
-                print(f"LINE API HTTP Status Code: {response.status}")
-                print(f"LINE API Response Body: {response_body}")
-                current_app.logger.warning("LINE API HTTP Status Code: %s", response.status)
-                current_app.logger.warning("LINE API Response Body: %s", response_body)
+                current_app.logger.info(
+                    "LINE message request completed. status=%s ok=%s",
+                    response.status,
+                    200 <= response.status < 300,
+                )
                 return {
                     "ok": 200 <= response.status < 300,
                     "status_code": response.status,
@@ -191,23 +315,16 @@ class LineService:
                     "error": None,
                 }
         except HTTPError as exc:
-            error_body = exc.read().decode("utf-8", errors="replace")
-            print(f"LINE API HTTP Status Code: {exc.code}")
-            print(f"LINE API Response Body: {error_body}")
-            current_app.logger.exception(
-                "LINE push message failed. status=%s body=%s",
-                exc.code,
-                error_body,
-            )
+            exc.read()
+            current_app.logger.exception("LINE message request failed. status=%s", exc.code)
             return {
                 "ok": False,
                 "status_code": exc.code,
-                "response_body": error_body,
+                "response_body": "",
                 "error": str(exc),
             }
         except URLError:
-            print("LINE API Error: network error.")
-            current_app.logger.exception("LINE push message failed: network error.")
+            current_app.logger.exception("LINE message request failed: network error.")
             return {
                 "ok": False,
                 "status_code": None,
@@ -215,8 +332,7 @@ class LineService:
                 "error": "network error",
             }
         except Exception:
-            print("LINE API Error: unexpected error.")
-            current_app.logger.exception("LINE push message failed: unexpected error.")
+            current_app.logger.exception("LINE message request failed: unexpected error.")
             return {
                 "ok": False,
                 "status_code": None,

@@ -6,12 +6,25 @@ class OrderRepository:
         SELECT
             order_id,
             GROUP_CONCAT(
-                CONCAT(item_name, IF(specification IS NULL OR specification = '', '', CONCAT('（', specification, '）')), ' x', quantity)
+                CONCAT(
+                    item_name,
+                    IF(specification IS NULL OR specification = '', '', CONCAT('（', specification, '）')),
+                    ' x',
+                    quantity
+                )
                 ORDER BY id
                 SEPARATOR '、'
             ) AS items_summary
         FROM order_items
         GROUP BY order_id
+    """
+
+    _STATUS_COMPLETED_AT_SQL = """
+        completed_at = CASE
+            WHEN %s = 'completed' AND status <> 'completed' THEN CURRENT_TIMESTAMP
+            WHEN %s = 'completed' AND status = 'completed' THEN completed_at
+            ELSE NULL
+        END
     """
 
     @staticmethod
@@ -141,9 +154,12 @@ class OrderRepository:
         sql = """
             INSERT INTO orders (
                 order_no, customer_name, customer_phone, pickup_date,
-                pickup_time, subtotal, total_amount, status, note
+                pickup_time, subtotal, total_amount, status, completed_at, note
             )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s,
+                CASE WHEN %s = 'completed' THEN CURRENT_TIMESTAMP ELSE NULL END,
+                %s
+            )
         """
         total_amount = order_data["total_amount"]
         values = (
@@ -155,15 +171,16 @@ class OrderRepository:
             total_amount,
             total_amount,
             order_data["status"],
+            order_data["status"],
             order_data.get("note"),
         )
         with get_cursor(commit=True) as cursor:
             cursor.execute(sql, values)
             return cursor.lastrowid
 
-    @staticmethod
-    def update(order_id, order_data):
-        sql = """
+    @classmethod
+    def update(cls, order_id, order_data):
+        sql = f"""
             UPDATE orders
             SET
                 customer_name = %s,
@@ -173,6 +190,7 @@ class OrderRepository:
                 subtotal = %s,
                 total_amount = %s,
                 status = %s,
+                {cls._STATUS_COMPLETED_AT_SQL},
                 note = %s
             WHERE id = %s
         """
@@ -184,6 +202,8 @@ class OrderRepository:
             order_data["pickup_time"],
             total_amount,
             total_amount,
+            order_data["status"],
+            order_data["status"],
             order_data["status"],
             order_data.get("note"),
             order_id,
@@ -315,7 +335,8 @@ class OrderRepository:
         sql = """
             SELECT
                 COUNT(*) AS total_count,
-                SUM(CASE WHEN item_status = 'completed' THEN 1 ELSE 0 END) AS completed_count
+                COALESCE(SUM(CASE WHEN item_status = 'completed' THEN 1 ELSE 0 END), 0)
+                    AS completed_count
             FROM order_items
             WHERE order_id = %s
         """
@@ -323,17 +344,23 @@ class OrderRepository:
             cursor.execute(sql, (order_id,))
             return cursor.fetchone()
 
-    @staticmethod
-    def update_order_status(order_id, status):
-        sql = "UPDATE orders SET status = %s WHERE id = %s"
+    @classmethod
+    def update_order_status(cls, order_id, status):
+        sql = f"""
+            UPDATE orders
+            SET
+                status = %s,
+                {cls._STATUS_COMPLETED_AT_SQL}
+            WHERE id = %s
+        """
         with get_cursor(commit=True) as cursor:
-            cursor.execute(sql, (status, order_id))
+            cursor.execute(sql, (status, status, status, order_id))
 
     @staticmethod
     def mark_order_completed(order_id):
         sql = """
             UPDATE orders
-            SET status = 'completed', completed_at = COALESCE(completed_at, NOW())
+            SET status = 'completed', completed_at = COALESCE(completed_at, CURRENT_TIMESTAMP)
             WHERE id = %s
         """
         item_sql = """
@@ -347,6 +374,10 @@ class OrderRepository:
 
     @staticmethod
     def mark_order_preparing(order_id):
-        sql = "UPDATE orders SET status = 'preparing', completed_at = NULL WHERE id = %s"
+        sql = """
+            UPDATE orders
+            SET status = 'preparing', completed_at = NULL
+            WHERE id = %s
+        """
         with get_cursor(commit=True) as cursor:
             cursor.execute(sql, (order_id,))

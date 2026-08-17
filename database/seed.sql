@@ -2,28 +2,8 @@ USE traditional_restaurant;
 
 SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- Demo admin user.
--- Username: admin
--- Password: admin123
--- Note: the current local login may still read ADMIN_USERNAME / ADMIN_PASSWORD
--- from .env. This record is provided so the demo database has admin seed data.
-INSERT INTO admin_users (
-    username,
-    password_hash,
-    display_name,
-    role,
-    is_active
-) VALUES (
-    'admin',
-    'pbkdf2:sha256:1000000$restaurantseed$de5d11179eb1520bd9c8021ca8f5d725dc93f192a6be0767a0352884e0a28005',
-    '系統管理員',
-    'owner',
-    1
-) ON DUPLICATE KEY UPDATE
-    password_hash = VALUES(password_hash),
-    display_name = VALUES(display_name),
-    role = VALUES(role),
-    is_active = VALUES(is_active);
+-- Admin users must be created with a unique password hash before using /admin.
+-- Do not seed a shared default administrator account in production.
 
 -- Real table numbers for QR Code dine-in ordering.
 INSERT INTO restaurant_tables (table_number, display_name, floor, is_active) VALUES

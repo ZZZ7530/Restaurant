@@ -3,10 +3,12 @@ from functools import wraps
 import mysql.connector
 from flask import Blueprint, current_app, redirect, render_template, request, session, url_for
 
+from app.services.auth_service import AuthService
+from app.services.daily_price_service import DailyPriceService
 from app.services.menu_service import MenuService
 from app.services.order_service import OrderService
 from app.services.reservation_service import ReservationService
-from app.services.daily_price_service import DailyPriceService
+from app.services.revenue_service import RevenueService
 from app.services.table_service import TableService
 
 
@@ -32,12 +34,13 @@ def login():
 def login_post():
     username = request.form.get("username", "")
     password = request.form.get("password", "")
-    if (
-        username == current_app.config["ADMIN_USERNAME"]
-        and password == current_app.config["ADMIN_PASSWORD"]
-    ):
+    user = AuthService.authenticate(username, password)
+    if user:
         session["admin_logged_in"] = True
-        session["admin_username"] = username
+        session["admin_username"] = user["username"]
+        session["admin_user_id"] = user["id"]
+        session["admin_display_name"] = user.get("display_name") or user["username"]
+        session["admin_role"] = user.get("role")
         return redirect(url_for("admin.dashboard"))
     return render_template("admin/login.html", error="帳號或密碼錯誤"), 401
 
@@ -69,7 +72,7 @@ def reservations():
     except mysql.connector.Error as exc:
         current_app.logger.exception("Failed to load reservations for admin.")
         reservations_data = []
-        error = f"無法讀取訂位資料，請確認 MySQL 已啟動並可連線。({exc.errno})"
+        error = f"讀取訂位資料失敗，請稍後再試。MySQL 錯誤代碼：{exc.errno}"
 
     return render_template(
         "admin/reservations.html",
@@ -154,7 +157,7 @@ def orders():
     except mysql.connector.Error as exc:
         current_app.logger.exception("Failed to load orders for admin.")
         orders_data = []
-        error = f"無法讀取訂單資料，請確認 MySQL 已啟動並可連線。({exc.errno})"
+        error = f"讀取外帶訂單失敗，請稍後再試。MySQL 錯誤代碼：{exc.errno}"
 
     return render_template("admin/orders.html", orders=orders_data, error=error)
 
@@ -168,7 +171,7 @@ def dine_in_orders():
     except mysql.connector.Error as exc:
         current_app.logger.exception("Failed to load dine-in orders for admin.")
         orders_data = []
-        error = f"無法讀取內用訂單資料，請確認 MySQL 已啟動並可連線。({exc.errno})"
+        error = f"讀取內用訂單失敗，請稍後再試。MySQL 錯誤代碼：{exc.errno}"
 
     return render_template("admin/dine_in_orders.html", orders=orders_data, error=error)
 
@@ -178,7 +181,10 @@ def dine_in_orders():
 def table_qrcodes():
     try:
         table_groups = TableService.list_active_tables_grouped_by_floor()
-        base_url = current_app.config.get("TABLE_ORDER_BASE_URL", "http://127.0.0.1:5000").rstrip("/")
+        base_url = current_app.config.get(
+            "TABLE_ORDER_BASE_URL",
+            "http://127.0.0.1:5000",
+        ).rstrip("/")
         for group in table_groups:
             group["tables"] = [
                 {
@@ -191,7 +197,7 @@ def table_qrcodes():
     except mysql.connector.Error as exc:
         current_app.logger.exception("Failed to load table QR codes.")
         table_groups = []
-        error = f"讀取桌號 QR Code 資料失敗，請確認 MySQL 已啟動並可連線。({exc.errno})"
+        error = f"讀取桌位 QR Code 失敗，請稍後再試。MySQL 錯誤代碼：{exc.errno}"
 
     return render_template(
         "admin/table_qrcodes.html",
@@ -209,7 +215,7 @@ def kitchen():
     except mysql.connector.Error as exc:
         current_app.logger.exception("Failed to load kitchen board.")
         kitchen_orders = []
-        error = f"無法讀取出餐資料，請確認 MySQL 已啟動並可連線。({exc.errno})"
+        error = f"讀取廚房看板失敗，請稍後再試。MySQL 錯誤代碼：{exc.errno}"
 
     return render_template("admin/kitchen.html", orders=kitchen_orders, error=error)
 
@@ -223,7 +229,7 @@ def completed_orders():
     except mysql.connector.Error as exc:
         current_app.logger.exception("Failed to load completed orders.")
         completed_orders_data = []
-        error = f"無法讀取完成訂單，請確認 MySQL 已啟動並可連線。({exc.errno})"
+        error = f"讀取完成訂單失敗，請稍後再試。MySQL 錯誤代碼：{exc.errno}"
 
     return render_template(
         "admin/completed_orders.html",
@@ -254,7 +260,7 @@ def order_delete_permanently(order_id):
 def order_item_complete(item_id):
     try:
         OrderService.mark_order_item_completed(item_id)
-    except (ValueError, mysql.connector.Error) as exc:
+    except (ValueError, mysql.connector.Error):
         current_app.logger.exception("Failed to mark order item completed.")
     return redirect(url_for("admin.kitchen"))
 
@@ -264,7 +270,7 @@ def order_item_complete(item_id):
 def order_item_undo_complete(item_id):
     try:
         OrderService.undo_order_item_completed(item_id)
-    except (ValueError, mysql.connector.Error) as exc:
+    except (ValueError, mysql.connector.Error):
         current_app.logger.exception("Failed to undo order item completion.")
     return redirect(url_for("admin.kitchen"))
 
@@ -355,7 +361,7 @@ def menu_items():
     except mysql.connector.Error as exc:
         current_app.logger.exception("Failed to load menu items for admin.")
         items = []
-        error = f"無法讀取菜單資料，請確認 MySQL 已啟動並可連線。({exc.errno})"
+        error = f"讀取菜單資料失敗，請稍後再試。MySQL 錯誤代碼：{exc.errno}"
 
     return render_template("admin/menu_items.html", items=items, error=error)
 
@@ -419,7 +425,7 @@ def menu_delete(item_id):
         current_app.logger.exception("Failed to delete menu item.")
         return _render_admin_error(
             "admin/menu_items.html",
-            f"刪除失敗，可能已有訂單明細參考此菜色。({exc.errno})",
+            f"刪除菜單項目失敗，請確認是否仍有訂單使用此項目。MySQL 錯誤代碼：{exc.errno}",
             status=400,
             items=MenuService.list_admin_items(),
         )
@@ -435,7 +441,7 @@ def daily_prices():
     except mysql.connector.Error as exc:
         current_app.logger.exception("Failed to load daily menu prices.")
         prices = []
-        error = f"無法讀取時價資料，請確認 MySQL 已啟動並可連線。({exc.errno})"
+        error = f"讀取時價設定失敗，請稍後再試。MySQL 錯誤代碼：{exc.errno}"
 
     return render_template("admin/daily_prices.html", prices=prices, error=error)
 
@@ -497,7 +503,15 @@ def daily_price_delete(price_id):
 @admin_bp.get("/revenue")
 @admin_required
 def revenue():
-    return render_template("admin/revenue.html")
+    try:
+        dashboard = RevenueService.build_dashboard(request.args)
+        error = None
+    except mysql.connector.Error as exc:
+        current_app.logger.exception("Failed to load revenue dashboard.")
+        dashboard = RevenueService.empty_dashboard(request.args)
+        error = f"讀取營業分析資料失敗，請稍後再試。MySQL 錯誤代碼：{exc.errno}"
+
+    return render_template("admin/revenue.html", dashboard=dashboard, error=error)
 
 
 @admin_bp.get("/settings")

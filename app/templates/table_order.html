@@ -97,8 +97,11 @@
         </div>
     </div>
 </section>
+{% set ai_mode = "dine_in" %}
+{% include "components/ai_recommendation_assistant.html" %}
 {% endblock %}
 
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/table_order.js') }}"></script>
+<script src="{{ url_for('static', filename='js/ai_recommendation.js') }}"></script>
 {% endblock %}
